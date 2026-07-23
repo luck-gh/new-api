@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useEffectEvent, useMemo, useState } from 'react'
 
 import { useStatus } from '@/hooks/use-status'
 import { getNotice } from '@/lib/api'
@@ -168,15 +168,18 @@ export function useNotifications() {
     }
   }
 
+  const openNotificationCenter = useEffectEvent(() => {
+    handleOpenPopover('notice')
+  })
+
   useEffect(() => {
-    const openNotificationCenter = () => handleOpenPopover('notice')
     window.addEventListener('open-notification-center', openNotificationCenter)
     return () =>
       window.removeEventListener(
         'open-notification-center',
         openNotificationCenter
       )
-  })
+  }, [])
 
   return {
     // Data

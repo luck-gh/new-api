@@ -42,7 +42,6 @@ export function SourceHome(props: SourceHomeProps) {
   const apiBase =
     (status?.server_address as string | undefined)?.replace(/\/$/, '') ||
     window.location.origin
-  const docsUrl = (status?.docs_link as string | undefined)?.trim() || '/docs/'
 
   const copyApiBase = useCallback(async () => {
     try {
@@ -65,7 +64,6 @@ export function SourceHome(props: SourceHomeProps) {
       <div className='relative z-10'>
         <SourceHomeHero
           apiBase={apiBase}
-          docsUrl={docsUrl}
           isAuthenticated={props.isAuthenticated}
           logo={logo}
           onCopyApiBase={copyApiBase}

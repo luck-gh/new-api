@@ -19,7 +19,11 @@ For commercial licensing, please contact support@quantumnous.com
 import assert from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
-import { injectDocsToken, useDocsTokenStore } from '../docs-token-store.ts'
+import {
+  getDocsTokenForUser,
+  injectDocsToken,
+  useDocsTokenStore,
+} from '../docs-token-store.ts'
 
 afterEach(() => {
   useDocsTokenStore.getState().clearToken()
@@ -43,15 +47,17 @@ describe('documentation API key session', () => {
 
   test('clears the in-memory key and identifying metadata together', () => {
     const store = useDocsTokenStore.getState()
-    store.setToken(42, 'Documentation key', 'session-token')
+    store.setToken(7, 42, 'Documentation key', 'session-token')
 
     assert.deepEqual(
       {
+        userId: useDocsTokenStore.getState().userId,
         tokenId: useDocsTokenStore.getState().tokenId,
         tokenName: useDocsTokenStore.getState().tokenName,
         token: useDocsTokenStore.getState().token,
       },
       {
+        userId: 7,
         tokenId: 42,
         tokenName: 'Documentation key',
         token: 'session-token',
@@ -62,11 +68,28 @@ describe('documentation API key session', () => {
 
     assert.deepEqual(
       {
+        userId: useDocsTokenStore.getState().userId,
         tokenId: useDocsTokenStore.getState().tokenId,
         tokenName: useDocsTokenStore.getState().tokenName,
         token: useDocsTokenStore.getState().token,
       },
-      { tokenId: null, tokenName: '', token: '' }
+      { userId: null, tokenId: null, tokenName: '', token: '' }
+    )
+  })
+
+  test('never exposes a memory-only key to a different signed-in user', () => {
+    useDocsTokenStore
+      .getState()
+      .setToken(7, 42, 'Documentation key', 'session-token')
+
+    assert.equal(
+      getDocsTokenForUser(useDocsTokenStore.getState(), 7),
+      'session-token'
+    )
+    assert.equal(getDocsTokenForUser(useDocsTokenStore.getState(), 8), '')
+    assert.equal(
+      getDocsTokenForUser(useDocsTokenStore.getState(), undefined),
+      ''
     )
   })
 })

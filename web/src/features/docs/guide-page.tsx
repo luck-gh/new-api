@@ -26,9 +26,14 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/auth-store'
 
 import { guideSummary, guideTitle } from './docs-copy'
-import { injectDocsToken, useDocsTokenStore } from './docs-token-store'
+import {
+  getDocsTokenForUser,
+  injectDocsToken,
+  useDocsTokenStore,
+} from './docs-token-store'
 import type { DocsGuide } from './types'
 
 export function GuidePage(props: {
@@ -39,7 +44,8 @@ export function GuidePage(props: {
   const { i18n, t } = useTranslation()
   const navigate = useNavigate()
   const reduceMotion = useReducedMotion()
-  const token = useDocsTokenStore((state) => state.token)
+  const userId = useAuthStore((state) => state.auth.user?.id)
+  const token = useDocsTokenStore((state) => getDocsTokenForUser(state, userId))
   const currentIndex = useMemo(
     () => props.guides.findIndex((guide) => guide.route === props.guide?.route),
     [props.guide?.route, props.guides]

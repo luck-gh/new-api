@@ -9,20 +9,36 @@ License, or (at your option) any later version.
 import { create } from 'zustand'
 
 type DocsTokenState = {
+  userId: number | null
   tokenId: number | null
   tokenName: string
   token: string
-  setToken: (tokenId: number, tokenName: string, token: string) => void
+  setToken: (
+    userId: number,
+    tokenId: number,
+    tokenName: string,
+    token: string
+  ) => void
   clearToken: () => void
 }
 
 export const useDocsTokenStore = create<DocsTokenState>()((set) => ({
+  userId: null,
   tokenId: null,
   tokenName: '',
   token: '',
-  setToken: (tokenId, tokenName, token) => set({ tokenId, tokenName, token }),
-  clearToken: () => set({ tokenId: null, tokenName: '', token: '' }),
+  setToken: (userId, tokenId, tokenName, token) =>
+    set({ userId, tokenId, tokenName, token }),
+  clearToken: () =>
+    set({ userId: null, tokenId: null, tokenName: '', token: '' }),
 }))
+
+export function getDocsTokenForUser(
+  state: Pick<DocsTokenState, 'userId' | 'token'>,
+  userId: number | undefined
+): string {
+  return userId !== undefined && state.userId === userId ? state.token : ''
+}
 
 export function injectDocsToken(code: string, token: string): string {
   if (!token) return code

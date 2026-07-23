@@ -23,8 +23,18 @@ export function DocsTokenInjection() {
   const { t } = useTranslation()
   const user = useAuthStore((state) => state.auth.user)
   const [loadingId, setLoadingId] = useState<number | null>(null)
-  const { tokenId, tokenName, token, setToken, clearToken } =
-    useDocsTokenStore()
+  const {
+    userId: tokenUserId,
+    tokenId,
+    tokenName,
+    token,
+    setToken,
+    clearToken,
+  } = useDocsTokenStore()
+  const tokenBelongsToUser = user?.id === tokenUserId
+  const activeTokenId = tokenBelongsToUser ? tokenId : null
+  const activeTokenName = tokenBelongsToUser ? tokenName : ''
+  const activeToken = tokenBelongsToUser ? token : ''
   const tokenQuery = useQuery({
     queryKey: ['docs', 'api-keys', user?.id],
     queryFn: () => getApiKeys({ p: 1, size: 100 }),
@@ -40,6 +50,7 @@ export function DocsTokenInjection() {
       clearToken()
       return
     }
+    if (!user) return
     const id = Number(value)
     const key = keys.find((item) => item.id === id)
     if (!key) return
@@ -49,7 +60,7 @@ export function DocsTokenInjection() {
       if (!response.success || !response.data?.key) {
         throw new Error(response.message || t('docs.token.loadFailed'))
       }
-      setToken(id, key.name, response.data.key)
+      setToken(user.id, id, key.name, response.data.key)
       toast.success(t('docs.token.injected', { name: key.name }))
     } catch (error) {
       toast.error(
@@ -88,7 +99,7 @@ export function DocsTokenInjection() {
         </label>
         <select
           id='docs-token-selector'
-          value={tokenId ?? ''}
+          value={activeTokenId ?? ''}
           onChange={(event) => void selectToken(event.target.value)}
           disabled={tokenQuery.isLoading || loadingId !== null}
           className='border-input bg-background focus:ring-ring h-9 min-w-56 flex-1 rounded-lg border px-3 text-sm outline-none focus:ring-2'
@@ -103,7 +114,7 @@ export function DocsTokenInjection() {
         {loadingId !== null ? (
           <LoaderCircle className='size-4 animate-spin' />
         ) : null}
-        {token ? (
+        {activeToken ? (
           <Button variant='ghost' size='sm' onClick={clearToken}>
             <X className='size-4' />
             {t('docs.token.clear')}
@@ -113,8 +124,8 @@ export function DocsTokenInjection() {
       <div className='text-muted-foreground mt-3 flex gap-2 text-xs leading-5'>
         <ShieldAlert className='mt-0.5 size-3.5 shrink-0' />
         <span>
-          {token
-            ? t('docs.token.activeWarning', { name: tokenName })
+          {activeToken
+            ? t('docs.token.activeWarning', { name: activeTokenName })
             : t('docs.token.sessionWarning')}
         </span>
       </div>

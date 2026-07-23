@@ -93,14 +93,18 @@ export function SourceHomeRequestJourney(props: SourceHomeRequestJourneyProps) {
               </div>
               <div className='flex gap-8 font-mono text-xs'>
                 <div>
-                  <span className='text-muted-foreground block'>LATENCY</span>
+                  <span className='text-muted-foreground block'>
+                    {t('home.brand.latency')}
+                  </span>
                   <strong className='mt-1 block text-2xl'>
                     {phase === 2 ? 187 : 0}
                     <span className='text-primary text-sm'>ms</span>
                   </strong>
                 </div>
                 <div>
-                  <span className='text-muted-foreground block'>TOKEN</span>
+                  <span className='text-muted-foreground block'>
+                    {t('home.brand.tokens')}
+                  </span>
                   <strong className='text-primary mt-1 block text-2xl'>
                     {phase === 2 ? '2,148' : '0'}
                   </strong>

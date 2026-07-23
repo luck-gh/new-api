@@ -24,9 +24,14 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 
 import { endpointTitle } from './docs-copy'
-import { injectDocsToken, useDocsTokenStore } from './docs-token-store'
+import {
+  getDocsTokenForUser,
+  injectDocsToken,
+  useDocsTokenStore,
+} from './docs-token-store'
 import type { DocsEndpoint } from './types'
 
 const LANGUAGES = ['cURL', 'JavaScript', 'Python', 'Go'] as const
@@ -102,7 +107,8 @@ export function ApiReference(props: {
 }) {
   const { i18n, t } = useTranslation()
   const reduceMotion = useReducedMotion()
-  const token = useDocsTokenStore((state) => state.token)
+  const userId = useAuthStore((state) => state.auth.user?.id)
+  const token = useDocsTokenStore((state) => getDocsTokenForUser(state, userId))
   const isChinese = i18n.language.startsWith('zh')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState('endpoint-2')

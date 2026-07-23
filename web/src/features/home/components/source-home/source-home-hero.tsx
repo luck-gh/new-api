@@ -25,7 +25,6 @@ import { Button } from '@/components/ui/button'
 
 type SourceHomeHeroProps = {
   apiBase: string
-  docsUrl: string
   isAuthenticated: boolean
   logo: string
   onCopyApiBase: () => void
@@ -160,7 +159,7 @@ export function SourceHomeHero(props: SourceHomeHeroProps) {
               <Button
                 variant='outline'
                 className='border-border/80 bg-background/30 text-foreground hover:bg-accent h-11 rounded-none px-5 text-xs'
-                render={<a href={props.docsUrl} />}
+                render={<Link to='/docs' />}
               >
                 <BookOpen className='size-4' />
                 {t('Docs')}
