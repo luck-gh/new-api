@@ -55,6 +55,9 @@ export function useTopNavLinks(): TopNavLink[] {
     )
   }, [status])
 
+  // Documentation link (may be external)
+  const docsLink: string | undefined = status?.docs_link as string | undefined
+
   const isAuthed = !!auth?.user
 
   const links: TopNavLink[] = []
@@ -83,9 +86,9 @@ export function useTopNavLinks(): TopNavLink[] {
     links.push({ title: t('Rankings'), href: '/rankings', requiresAuth })
   }
 
-  // Docs are integrated as a native route and should behave like other nav items.
-  if (modules?.docs !== false) {
-    links.push({ title: t('Docs'), href: '/docs' })
+  // Docs (supports external links)
+  if (modules?.docs !== false && docsLink) {
+    links.push({ title: t('Docs'), href: docsLink, external: true })
   }
 
   // About

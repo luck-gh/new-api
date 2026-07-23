@@ -18,8 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Docs } from '@/features/docs'
+import { ExternalDocsRedirect } from '@/components/external-docs-redirect'
 
 export const Route = createFileRoute('/docs/guides/$slug')({
-  component: Docs,
+  component: ExternalDocsRedirect,
 })

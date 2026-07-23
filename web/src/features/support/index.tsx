@@ -12,9 +12,12 @@ import { useTranslation } from 'react-i18next'
 
 import { SectionPageLayout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
+import { useStatus } from '@/hooks/use-status'
 
 export function SupportCenter() {
   const { t } = useTranslation()
+  const { status } = useStatus()
+  const docsUrl = (status?.docs_link as string | undefined)?.trim()
 
   return (
     <SectionPageLayout>
@@ -33,20 +36,22 @@ export function SupportCenter() {
             </p>
 
             <div className='mt-8 grid gap-3 sm:grid-cols-2'>
-              <Link
-                to='/docs'
-                className='border-border/60 hover:bg-accent/40 flex items-start gap-3 rounded-xl border p-4 transition-colors'
-              >
-                <BookOpen className='text-primary mt-0.5 size-4' />
-                <span>
-                  <strong className='block text-sm'>
-                    {t('support.readDocs')}
-                  </strong>
-                  <span className='text-muted-foreground mt-1 block text-xs leading-5'>
-                    {t('support.readDocsDescription')}
+              {docsUrl ? (
+                <a
+                  href={docsUrl}
+                  className='border-border/60 hover:bg-accent/40 flex items-start gap-3 rounded-xl border p-4 transition-colors'
+                >
+                  <BookOpen className='text-primary mt-0.5 size-4' />
+                  <span>
+                    <strong className='block text-sm'>
+                      {t('support.readDocs')}
+                    </strong>
+                    <span className='text-muted-foreground mt-1 block text-xs leading-5'>
+                      {t('support.readDocsDescription')}
+                    </span>
                   </span>
-                </span>
-              </Link>
+                </a>
+              ) : null}
               <button
                 type='button'
                 onClick={() =>
