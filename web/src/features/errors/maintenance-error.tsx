@@ -20,11 +20,14 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 
+import { ErrorPageBrand } from './error-page-brand'
+
 export function MaintenanceError() {
   const { t } = useTranslation()
   return (
     <div className='h-svh'>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
+        <ErrorPageBrand />
         <h1 className='text-[7rem] leading-tight font-bold'>503</h1>
         <span className='font-medium'>
           {t('Website is under maintenance!')}

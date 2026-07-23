@@ -22,6 +22,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+import { ErrorPageBrand } from './error-page-brand'
+
 const FEEDBACK_URL = 'https://github.com/QuantumNous/new-api/issues'
 
 type GeneralErrorProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -57,6 +59,7 @@ export function GeneralError({
   return (
     <div className={cn('h-svh w-full', className)}>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
+        {!minimal && <ErrorPageBrand />}
         {!minimal && (
           <h1 className='text-[7rem] leading-tight font-bold'>
             {status ?? 500}

@@ -21,6 +21,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 
+import { ErrorPageBrand } from './error-page-brand'
+
 export function ForbiddenError() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -28,6 +30,7 @@ export function ForbiddenError() {
   return (
     <div className='h-svh'>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
+        <ErrorPageBrand />
         <h1 className='text-[7rem] leading-tight font-bold'>403</h1>
         <span className='font-medium'>{t('Access Forbidden')}</span>
         <p className='text-muted-foreground text-center'>

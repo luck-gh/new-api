@@ -1,0 +1,452 @@
+{
+  "source": "{{API_BASE}}/docs",
+  "capturedAt": "2026-07-22",
+  "guides": [
+    {
+      "route": "/docs/guides/quick-start",
+      "group": "快速上手",
+      "title": "快速开始：5 分钟发出第一个请求",
+      "summary": "注册、创建令牌，并发出你的第一个请求。",
+      "html": "<p>在 5 分钟内完成从注册到第一次成功调用。本站 是一个 AI API 网关：你在这里创建一个 <code>sk-</code> 开头的令牌，然后像调用 OpenAI / Anthropic 官方接口一样调用它，站点会把请求转发到各家模型。</p>\n<h2>第 1 步：注册并登录</h2>\n<p>在右上角完成注册并登录。如果站点开启了邀请制，需要先获取邀请码。</p>\n<h2>第 2 步：创建 API 令牌</h2>\n<p>进入 <strong>控制台 → API 令牌</strong>，点击「创建令牌」。建议：</p>\n<ul>\n<li>每个应用/工具使用独立令牌，方便单独禁用与统计</li>\n<li>新手直接使用默认分组即可；额度选「无限额度」时实际消耗钱包余额</li>\n<li>令牌属于敏感凭证，请勿公开分享；泄露时在列表中删除并重建即可</li>\n</ul>\n<blockquote>\n<p>登录后，本页右上角的「令牌注入」可以把你的真实令牌直接填进下面所有示例——复制即可运行。</p>\n</blockquote>\n<h2>第 3 步：确认余额</h2>\n<p>进入 <strong>钱包</strong> 查看余额。余额不足时充值或使用兑换码；每次调用的花费会记录在 <strong>使用日志</strong> 里。</p>\n<h2>第 4 步：发送第一个请求</h2>\n<div><pre><code class=\"language-bash\">curl {{API_BASE}}/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer sk-your-api-key\" \\\n  -d '{\n    \"model\": \"gpt-4o-mini\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"用一句话打个招呼\"}]\n  }'\n</code></pre></div>\n<p>模型名以 <strong>定价</strong> 页面展示的为准；把 <code>gpt-4o-mini</code> 换成任何你有权使用的模型。</p>\n<h2>第 5 步：验证与下一步</h2>\n<p>最快的验证方式是直接在站内对话：打开 <strong>Playground</strong>，选择模型发一句话，能收到回复说明网关、分组和令牌全部就绪。</p>\n<p>接下来按你的工具选择接入指南：</p>\n<ul>\n<li>编程 CLI：<a href=\"/docs/guides/claude-code\">Claude Code</a>、<a href=\"/docs/guides/codex-cli\">Codex CLI</a>，或用 <a href=\"/docs/guides/cc-switch\">CC Switch 一键导入</a></li>\n<li>桌面客户端：<a href=\"/docs/guides/cherry-studio\">Cherry Studio</a></li>\n<li>浏览器翻译：<a href=\"/docs/guides/immersive-translate\">沉浸式翻译</a></li>\n<li>写代码：<a href=\"/docs/guides/openai-sdk\">OpenAI SDK</a>、<a href=\"/docs/guides/anthropic-sdk\">Anthropic SDK</a></li>\n<li>遇到报错：<a href=\"/docs/guides/troubleshooting\">错误码与排障</a></li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/image-gen",
+      "group": "快速上手",
+      "title": "生图接入：返回托管 URL，而非 base64",
+      "summary": "生成图片并获得轻量的托管链接——为什么 URL 优于 base64、链接有效期与客户端注意事项。",
+      "html": "<p>在 本站 上生成图片，你拿到的是一条<strong>图片链接（URL）</strong>，而不是一大段 base64 编码。这不是缺了什么功能，而是我们刻意的设计——这篇指南解释为什么，以及接入时需要注意的几件事。</p>\n<h2>为什么返回链接，而不是 base64？</h2>\n<p>base64 是把图片\"转写\"成纯文本塞进 JSON 响应里。一张高清图这样转写后有 <strong>5–20MB</strong>，带来三个实际问题：</p>\n<ul>\n<li><strong>慢</strong>：整个响应必须完整传输完你才能看到图，网络稍差就是十几秒的白屏等待；</li>\n<li><strong>卡</strong>：很多客户端渲染超大 base64 文本时明显卡顿，甚至直接截断；</li>\n<li><strong>脆</strong>：超大响应更容易触发各级超时，失败率显著更高。</li>\n</ul>\n<p>改成返回链接后，API 响应只有<strong>几百字节</strong>，瞬间到达；图片本体存放在对象存储上，由 CDN 网络直接下发，下载又快又稳。这就是主流生图服务（包括 OpenAI 官方的 DALL·E 链接模式）的通行做法。</p>\n<p>因此在 本站：<strong>生图接口始终以 <code>url</code> 字段返回图片</strong>。即使请求里写了 <code>response_format: \"b64_json\"</code>，也会得到 <code>url</code>——这不是错误，是平台策略，目的是让所有用户都快。</p>\n<h2>快速开始</h2>\n<div><pre><code class=\"language-bash\">curl {{API_BASE}}/v1/images/generations \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer sk-your-api-key\" \\\n  -d '{\n    \"model\": \"gpt-image-1\",\n    \"prompt\": \"一只戴宇航员头盔的柴犬，胶片质感\",\n    \"size\": \"1024x1024\",\n    \"response_format\": \"url\"\n  }'\n</code></pre></div>\n<p>成功响应长这样：</p>\n<div><pre><code class=\"language-json\">{\n  \"created\": 1710000000,\n  \"data\": [\n    {\n      \"url\": \"https://images.example.com/xxxx.png\",\n      \"revised_prompt\": \"A shiba inu wearing an astronaut helmet...\"\n    }\n  ]\n}\n</code></pre></div>\n<p>拿到 <code>url</code> 后直接在浏览器打开、<code>&lt;img&gt;</code> 标签引用或下载即可。</p>\n<h2>图片链接有 1 小时有效期</h2>\n<p>链接自签发起 <strong>约 1 小时内可访问</strong>，过期后图片会从存储中清理。这样做是为了控制存储成本，也避免你的生成内容被无限期留存。</p>\n<p><strong>需要长期保存的图，请在拿到链接后及时下载</strong>。例如用 Python：</p>\n<div><pre><code class=\"language-python\">import requests\n\nurl = resp.json()[\"data\"][0][\"url\"]\nwith open(\"image.png\", \"wb\") as f:\n    f.write(requests.get(url, timeout=60).content)\n</code></pre></div>\n<p>在控制台的「图片生成」页面里，每张未保留的图片会显示剩余有效时间，并提供**「保留到本地」<strong>按钮：点击后图片字节只存进</strong>你浏览器本地的存储**（不会上传到我们的服务器），之后可以在历史记录里长期查看；不保留的图片会在链接过期时自动从历史中消失。</p>\n<h2>关于流式（stream）</h2>\n<p>生图接口<strong>不需要流式</strong>。图片是一次性生成完的，没有\"逐字输出\"的概念：</p>\n<ul>\n<li>不带 <code>stream</code> 参数：直接返回上面的 JSON，这是推荐用法；</li>\n<li>带了 <code>stream: true</code>：请求依然能正常工作——你会收到一条携带最终 <code>url</code> 的 SSE 完成事件，但不会有逐步预览的中间帧。</li>\n</ul>\n<p>简单说：<strong>别管流式，按普通 JSON 请求写就对了</strong>。</p>\n<h2>客户端不显示图片怎么办？</h2>\n<p>绝大多数主流客户端（以及 OpenAI 官方 SDK）都能正确处理 <code>url</code> 字段。如果你的客户端拿到响应却不显示图片，大概率是它只读取 <code>b64_json</code> 字段：</p>\n<ol>\n<li>优先换用支持 <code>url</code> 返回格式的客户端或升级到新版本；</li>\n<li>自建应用的话，按上面的示例先下载图片再使用，几行代码就能兼容。</li>\n</ol>\n<h2>内容规范</h2>\n<p>请不要用生图能力生成违法违规内容。相关请求会被平台拦截并记录，多次违规可能影响账号使用。</p>\n<h2>下一步</h2>\n<ul>\n<li>还没有令牌？看 <a href=\"/docs/guides/quick-start\">快速开始</a></li>\n<li>调用报错？看 <a href=\"/docs/guides/troubleshooting\">错误码与排障</a></li>\n<li>完整参数说明在 <a href=\"/docs/api\">API 参考</a> 的 Images 分组</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/cc-switch",
+      "group": "编程 CLI 工具",
+      "title": "CC Switch 一键配置",
+      "summary": "下载 CC Switch，一键把本站导入为供应商。",
+      "html": "<p><a href=\"https://github.com/farion1231/cc-switch\">CC Switch</a> 是一款开源的跨平台桌面工具，用来统一管理 Claude Code、Codex、Gemini CLI、OpenCode、OpenClaw、Hermes 等 AI 编程工具的供应商配置，并在多个站点之间一键切换。本站 深度适配了它的 <code>ccswitch://</code> 导入协议——<strong>不需要手改任何配置文件</strong>。</p>\n<h2>第 1 步：下载安装</h2>\n<p>前往官方发布页下载对应平台的安装包（Windows / macOS / Linux）：</p>\n<ul>\n<li>GitHub Releases：<a href=\"https://github.com/farion1231/cc-switch/releases/latest\">https://github.com/farion1231/cc-switch/releases/latest</a></li>\n</ul>\n<p>安装后启动一次，<code>ccswitch://</code> 协议会自动注册到系统。建议使用 <strong>v3.17.0 或更新版本</strong>，以获得最新的深链导入、模型配置与修复。</p>\n<h2>第 2 步：一键导入本站</h2>\n<p>在下方选择令牌和目标应用，点击「导入到 CC Switch」。浏览器会唤起 CC Switch 并弹出确认框，确认后本站即作为供应商写入对应工具的配置，并自动设为当前供应商。</p>\n<blockquote>\n<p>一键导入支持：Codex、Claude Code、Gemini CLI、OpenCode、OpenClaw、Hermes，以及 Grok Build（需 CC Switch v3.18+，旧版会提示 app 无效）。若站点提供多条 API 线路，可选择同时导入备用地址，并在 CC Switch 中切换。</p>\n</blockquote>\n<blockquote>\n<p>默认勾选「同时配置余额查询」：导入的供应商会带上一段用量查询脚本，CC Switch 里可直接看到该令牌的剩余额度。脚本只使用令牌本身调用本站 <code>/api/usage/token/</code>，不包含任何账号级凭据。</p>\n</blockquote>\n<blockquote>\n<p>CC Switch 本身也支持 Claude Desktop；但其当前官方 provider Deep Link 协议不接受 <code>claude-desktop</code>，因此请在 CC Switch 内手动新增 Claude Desktop 供应商，勿用本站一键导入。</p>\n</blockquote>\n<blockquote>\n<p>地址规则已由导入器自动处理：Claude Code / Claude Desktop 使用站点根地址；Codex、Grok Build、OpenCode、OpenClaw、Hermes 使用带 <code>/v1</code> 的地址。无需手动增删 <code>/v1</code>。</p>\n</blockquote>\n<p>导入时按目标工具选模型：</p>\n<ul>\n<li><strong>Codex</strong>：优先选 <code>gpt-5.6</code>；本站的其他后缀型号以定价页和你的令牌分组为准。要用联网搜索，导入后把 <code>web_search = \"live\"</code> 加到该供应商配置的顶层——导入弹窗里有这行的复制按钮（Deep Link 协议无法携带该键）。想对所有供应商生效，可放进 CC Switch 的 Codex「通用配置片段」并在供应商上勾选「应用通用配置」，详见 <a href=\"/docs/guides/codex-cli\">Codex CLI 指南</a>。</li>\n<li><strong>Claude Code</strong>：追求最强能力选 <code>claude-fable-5</code>，日常均衡选 <code>claude-sonnet-5</code>，Haiku 槽位选 <code>claude-haiku-4-5</code>。也可选 <code>grok-4.5</code>；是否适合长会话取决于实际缓存用量，请在使用日志中验证。</li>\n<li><strong>Grok Build</strong>：选 <code>grok-4.5</code>。</li>\n</ul>\n<blockquote>\n<p>Claude Code 的一键导入会写入主模型与 Opus / Sonnet / Haiku 槽位；「子代理模型」一栏会通过配置载荷写入 <code>CLAUDE_CODE_SUBAGENT_MODEL</code>，同时自动为旧版 Claude Code 补写 <code>ANTHROPIC_SMALL_FAST_MODEL</code>（取 Haiku 槽位的值）。</p>\n</blockquote>\n<blockquote>\n<p>只有当你要把仅支持 OpenAI 格式的模型提供给 Claude Code 时，才需要在 CC Switch 中启用 Claude 本地代理/接管。本站提供 Anthropic Messages 接口时，不需要为了本指南的直连配置额外开启它。</p>\n</blockquote>\n<h2>也可以从令牌页导入</h2>\n<p>在 <strong>控制台 → API 令牌</strong> 中，任意令牌的操作菜单里同样有「导入到 CC Switch」入口，效果相同。</p>\n<h2>常见问题</h2>\n<ul>\n<li><strong>点击后没有唤起 CC Switch</strong>：确认已安装并至少启动过一次；浏览器弹出的\"打开 CC Switch?\"询问需要允许。</li>\n<li><strong>导入失败或提示 app 无效</strong>：更新 CC Switch 后重试；本站一键导入不支持 Claude Desktop，需在应用内手动添加。</li>\n<li><strong>导入后工具还是连不上</strong>：打开 CC Switch 检查供应商地址、令牌和模型名；再确认本站定价页中的令牌分组包含该模型。除 Claude Code 外，重启对应 CLI 通常可使配置生效。</li>\n<li><strong>想手动分享配置</strong>：CC Switch 也支持手动构造 <code>ccswitch://v1/import?...</code> 链接，参数说明见其<a href=\"https://github.com/farion1231/cc-switch/blob/main/docs/user-manual/zh/5-faq/5.3-deeplink.md\">官方文档</a>。</li>\n</ul>\n<blockquote>\n<p>安全提示：导入链接含 API 令牌。不要复制、截图或在公开渠道转发完整链接；仅确认来自本站或你信任的来源后再导入。</p>\n</blockquote>\n<h2>可信来源与自行核对</h2>\n<ul>\n<li><a href=\"{{API_BASE}}/api/pricing\">本站实时模型列表与分组</a>：选择模型前先确认模型名和令牌分组。</li>\n<li><a href=\"https://github.com/farion1231/cc-switch\">CC Switch 官方 README</a>：支持的应用、安装包与切换行为。</li>\n<li><a href=\"https://github.com/farion1231/cc-switch/blob/main/docs/user-manual/zh/5-faq/5.3-deeplink.md\">CC Switch Deep Link 协议</a>：<code>ccswitch://</code> 参数与手动导入格式。</li>\n<li><a href=\"https://github.com/farion1231/cc-switch/releases/tag/v3.17.0\">CC Switch v3.17.0 release notes</a>：最新版本的功能、升级提醒与风险说明。</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/claude-code",
+      "group": "编程 CLI 工具",
+      "title": "接入 Claude Code",
+      "summary": "两个环境变量即可让 Claude Code 使用本站。",
+      "html": "<p>Claude Code 是 Anthropic 官方的终端编程助手。只需两个环境变量，就能让它通过 本站 调用模型。</p>\n<blockquote>\n<p>💡 <strong>推荐</strong>：不想手改配置？用 <a href=\"/docs/guides/cc-switch\">CC Switch 一键导入</a>，自动写入 Claude Code 配置，还能在多个站点之间一键切换。</p>\n</blockquote>\n<h2>前置条件</h2>\n<ul>\n<li>已安装 Node.js 18+</li>\n<li>已在本站创建 API 令牌（<strong>控制台 → API 令牌</strong>）</li>\n</ul>\n<h2>第 1 步：安装 Claude Code</h2>\n<p>按 <a href=\"https://code.claude.com/docs/en/overview\">Claude Code 官方安装指南</a> 选择适合系统的安装方式（Windows 推荐 WinGet 或 PowerShell 安装脚本；macOS / Linux 推荐官方安装脚本）。</p>\n<blockquote>\n<p><code>npm install -g @anthropic-ai/claude-code</code> 仍可使用，但已被官方标为旧安装方式；仅在你明确需要 npm 时使用。</p>\n</blockquote>\n<h2>第 2 步：写入配置</h2>\n<p>编辑（不存在则创建）<code>~/.claude/settings.json</code>：</p>\n<ul>\n<li><strong>Windows</strong>：<code>Win + R</code> 输入 <code>%userprofile%\\.claude</code>，在该目录中创建 <code>settings.json</code></li>\n<li><strong>macOS / Linux</strong>：终端执行 <code>mkdir -p ~/.claude &amp;&amp; open ~/.claude</code>（Linux 用文件管理器打开）</li>\n</ul>\n<div><pre><code class=\"language-json\">{\n  \"env\": {\n    \"ANTHROPIC_BASE_URL\": \"{{API_BASE}}\",\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-your-api-key\"\n  }\n}\n</code></pre></div>\n<blockquote>\n<p>注意：<code>ANTHROPIC_BASE_URL</code> 填站点根地址，<strong>结尾不要加 <code>/v1</code></strong>。</p>\n</blockquote>\n<p>如需固定模型（可选），在 <code>env</code> 中追加。Claude Code 用模型别名和 Default 选项选择不同档位；下列变量决定这些别名实际解析到哪个模型：</p>\n<div><pre><code class=\"language-json\">{\n  \"env\": {\n    \"ANTHROPIC_BASE_URL\": \"{{API_BASE}}\",\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-your-api-key\",\n    \"ANTHROPIC_MODEL\": \"claude-fable-5\",\n    \"ANTHROPIC_DEFAULT_OPUS_MODEL\": \"claude-opus-4-8\",\n    \"ANTHROPIC_DEFAULT_SONNET_MODEL\": \"claude-sonnet-5\",\n    \"ANTHROPIC_DEFAULT_HAIKU_MODEL\": \"claude-haiku-4-5\"\n  }\n}\n</code></pre></div>\n<ul>\n<li><code>ANTHROPIC_MODEL</code>：主对话模型。<code>claude-fable-5</code> 是当前最强旗舰；日常想省钱可换成 <code>claude-sonnet-5</code>。</li>\n<li><code>ANTHROPIC_DEFAULT_OPUS_MODEL</code> / <code>ANTHROPIC_DEFAULT_SONNET_MODEL</code> / <code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code>：分别控制 <code>opus</code>、<code>sonnet</code>、<code>haiku</code> 别名，以及 Default 选项所解析到的模型。</li>\n<li><code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code> 也用于会话标题等后台任务。建议设为本站可用的 Haiku 模型；<code>ANTHROPIC_SMALL_FAST_MODEL</code> 已废弃，请不要再使用。</li>\n</ul>\n<p>以上模型名为示例，可用模型以本站 <strong>定价</strong> 页为准。</p>\n<h2>进阶：在 Claude Code 里使用 grok-4.5</h2>\n<p>本站会把 Claude Code 发出的请求自动转换成 grok-4.5 能理解的格式，所以直接把主模型指过去即可：</p>\n<div><pre><code class=\"language-json\">{\n  \"env\": {\n    \"ANTHROPIC_BASE_URL\": \"{{API_BASE}}\",\n    \"ANTHROPIC_AUTH_TOKEN\": \"sk-your-api-key\",\n    \"ANTHROPIC_MODEL\": \"grok-4.5\"\n  }\n}\n</code></pre></div>\n<p><code>grok-4.5</code> 是 xAI 官方模型，也在本站当前模型列表中。xAI 支持提示词缓存；实际缓存命中与费用取决于请求前缀、路由和本站网关实现，建议先用本站使用日志核对缓存用量，再决定是否作为日常主模型。用 <a href=\"/docs/guides/cc-switch\">CC Switch 一键导入</a>时把主模型选为 <code>grok-4.5</code> 也能达到同样配置。</p>\n<h2>第 3 步：验证</h2>\n<p>进入任意项目目录运行：</p>\n<div><pre><code class=\"language-bash\">claude\n</code></pre></div>\n<p>输入一句话（例如\"用一句话介绍你自己\"），能收到回复即接入成功。同时在 Claude Code 中运行 <code>/status</code>，确认 <code>Anthropic base URL</code> 与认证变量正确；本站 <strong>使用日志</strong> 也应出现这次调用。若你是通过终端环境变量而非 <code>settings.json</code> 配置，需新开终端。</p>\n<h2>常见问题</h2>\n<ul>\n<li><strong>Connection error / fetch failed</strong>：<code>ANTHROPIC_BASE_URL</code> 是否为 <code>{{API_BASE}}</code>（无 <code>/v1</code> 结尾）？运行 <code>/status</code> 确认它被当前会话读取。</li>\n<li><strong>401</strong>：令牌是否完整复制（含 <code>sk-</code> 前缀）？令牌是否被删除？</li>\n<li><strong>模型不可用</strong>：令牌分组是否包含该模型？详见<a href=\"/docs/guides/troubleshooting\">错误码与排障</a>。</li>\n</ul>\n<h2>可信来源与自行核对</h2>\n<ul>\n<li><a href=\"{{API_BASE}}/api/pricing\">本站实时模型列表与分组</a>：模型名与可用分组以此为准。</li>\n<li><a href=\"https://code.claude.com/docs/en/llm-gateway-connect\">Claude Code：网关配置</a>：配置路径、<code>ANTHROPIC_BASE_URL</code>、认证变量和 <code>/status</code> 的官方说明。</li>\n<li><a href=\"https://code.claude.com/docs/en/model-config\">Claude Code：模型配置</a>：模型别名、<code>ANTHROPIC_DEFAULT_*_MODEL</code> 与废弃变量说明。</li>\n<li><a href=\"https://docs.x.ai/developers/grok-4-5\">xAI：grok-4.5</a> 与 <a href=\"https://docs.x.ai/developers/advanced-api-usage/prompt-caching/how-it-works\">提示词缓存</a>。</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/codex-cli",
+      "group": "编程 CLI 工具",
+      "title": "接入 Codex CLI",
+      "summary": "配置 config.toml，让 Codex CLI 使用本站。",
+      "html": "<p>Codex CLI 是 OpenAI 官方的终端编程助手。通过一份 <code>config.toml</code> 即可让它使用 本站 的模型。</p>\n<blockquote>\n<p>💡 <strong>推荐</strong>：不想手改配置？用 <a href=\"/docs/guides/cc-switch\">CC Switch 一键导入</a>，自动写入 Codex 配置，还能在多个站点之间一键切换。</p>\n</blockquote>\n<h2>前置条件</h2>\n<ul>\n<li>已安装 Node.js 18+</li>\n<li>已在本站创建 API 令牌</li>\n</ul>\n<h2>第 1 步：安装 Codex CLI</h2>\n<div><pre><code class=\"language-bash\">npm install -g @openai/codex\n</code></pre></div>\n<h2>第 2 步：写入配置</h2>\n<p>编辑（不存在则创建）<code>~/.codex/config.toml</code>：</p>\n<ul>\n<li><strong>Windows</strong>：<code>Win + R</code> 输入 <code>%userprofile%\\.codex</code></li>\n<li><strong>macOS / Linux</strong>：<code>mkdir -p ~/.codex</code></li>\n</ul>\n<div><pre><code class=\"language-toml\">#:schema https://developers.openai.com/codex/config-schema.json\nmodel_provider = \"custom\"\nmodel = \"gpt-5.6\"\nmodel_reasoning_effort = \"high\"\n\n[model_providers.custom]\nname = \"本站\"\nbase_url = \"{{API_BASE}}/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = true\n</code></pre></div>\n<blockquote>\n<p>注意：与 Claude Code 相反，Codex 的 <code>base_url</code> <strong>需要带 <code>/v1</code> 后缀</strong>；<code>wire_api</code> 使用 <code>\"responses\"</code>（当前也是唯一支持值）。第一行 schema 会让支持 TOML schema 的编辑器提示无效键名。</p>\n</blockquote>\n<p><code>gpt-5.6</code> 同时是 OpenAI 官方 Codex 文档列出的模型名，也是本站当前模型列表中的名称。本站还可能提供带后缀的路由型号；它们属于本站型号，不应视为 OpenAI 官方别名。使用前请在 <strong>定价</strong> 页确认模型存在、并确认你的令牌分组可用。</p>\n<p>再创建同目录下的 <code>~/.codex/auth.json</code> 存放令牌：</p>\n<div><pre><code class=\"language-json\">{\n  \"OPENAI_API_KEY\": \"sk-your-api-key\"\n}\n</code></pre></div>\n<h2>第 3 步：验证</h2>\n<p>重启终端后，在任意项目目录运行：</p>\n<div><pre><code class=\"language-bash\">codex\n</code></pre></div>\n<p>能正常对话即接入成功；调用记录可在本站 <strong>使用日志</strong> 查看。</p>\n<h2>可选：启用联网搜索</h2>\n<p>新版 Codex 的联网搜索由 <code>config.toml</code> <strong>顶层</strong>的 <code>web_search</code> 键控制（注意不在 <code>[model_providers.custom]</code> 里）：</p>\n<div><pre><code class=\"language-toml\">web_search = \"live\"\n</code></pre></div>\n<p>开启后，Codex 搜索时会调用本站的 <code>POST /v1/alpha/search</code> 接口。注意事项：</p>\n<ul>\n<li>搜索由站点侧支持该接口的渠道提供；若你的令牌分组暂无此类渠道，搜索会报错，但不影响正常对话。</li>\n<li>搜索按次计费（web_search 工具价，默认 $0.01/次），每次调用在 <strong>使用日志</strong> 中单独记一条；失败的搜索不扣费。</li>\n<li>稳定性：某个渠道搜索失败（超载、超时等）时，本站会自动更换渠道重试，无需手动干预；真实联网检索本身可能需要几十秒，属正常现象。</li>\n<li>不需要时删除该行，或设为 <code>web_search = \"disabled\"</code>。</li>\n<li>用 <a href=\"/docs/guides/cc-switch\">CC Switch</a> 管理 Codex 时，<code>ccswitch://</code> 导入协议无法携带这个键：本站一键导入弹窗为 Codex 提供了这行配置的复制按钮，导入后粘贴到该供应商配置的顶层即可。想全局生效，可放进 CC Switch 的 Codex「通用配置片段」，并在各供应商上勾选「应用通用配置」。</li>\n</ul>\n<h2>常见问题</h2>\n<ul>\n<li><strong>401 / Unauthorized</strong>：<code>auth.json</code> 里的令牌是否完整？是否误把令牌放进了 <code>config.toml</code>？</li>\n<li><strong>404 / model not found</strong>：<code>model</code> 填写的模型名是否在 <strong>定价</strong> 页存在且你的分组可用？</li>\n<li><strong>stream error / 超时</strong>：网络代理干扰常见，尝试关闭系统代理或为终端单独放行。</li>\n</ul>\n<h2>可信来源与自行核对</h2>\n<ul>\n<li><a href=\"{{API_BASE}}/api/pricing\">本站实时模型列表与分组</a>：模型名和令牌分组以此为准。</li>\n<li><a href=\"https://developers.openai.com/codex/config-basic\">Codex 配置基础</a>：<code>~/.codex/config.toml</code> 的官方路径与基础配置。</li>\n<li><a href=\"https://developers.openai.com/codex/config-advanced\">Codex 高级配置</a>：自定义 provider、<code>base_url</code> 与 <code>wire_api</code> 示例。</li>\n<li><a href=\"https://developers.openai.com/codex/config-reference\">Codex 配置完整参考</a>：所有当前有效 TOML 键及可选值。升级 Codex 后，优先以此页和 schema 为准。</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/cherry-studio",
+      "group": "客户端与工具",
+      "title": "接入 Cherry Studio",
+      "summary": "在 Cherry Studio 中把本站添加为 OpenAI 类型服务商。",
+      "html": "<p>Cherry Studio 是流行的开源桌面 AI 客户端（Windows / macOS / Linux），支持多服务商、知识库与绘图。把 本站 添加为一个 OpenAI 类型的服务商即可使用全部模型。</p>\n<h2>第 1 步：安装</h2>\n<p>从官网下载安装：<a href=\"https://www.cherry-ai.com\">https://www.cherry-ai.com</a></p>\n<h2>第 2 步：添加服务商</h2>\n<ol>\n<li>打开 <strong>设置 → 模型服务</strong>，点击「添加提供商」</li>\n<li>名称随意（例如 <code>本站</code>），类型选择 <strong>OpenAI</strong></li>\n<li>填写：\n<ul>\n<li><strong>API 密钥</strong>：<code>sk-your-api-key</code></li>\n<li><strong>API 地址</strong>：<code>{{API_BASE}}</code></li>\n</ul>\n</li>\n</ol>\n<blockquote>\n<p>地址填站点根地址即可，Cherry Studio 会自动补全 <code>/v1</code>。如果你填了完整路径，请以 <code>#</code> 结尾以强制使用原样地址。</p>\n</blockquote>\n<h2>第 3 步：添加模型</h2>\n<p>在该服务商的「模型」区域点击「管理」，Cherry Studio 会自动拉取本站可用模型列表；勾选你需要的模型（以 <strong>定价</strong> 页为准）。</p>\n<h2>第 4 步：验证</h2>\n<p>回到对话页，顶部模型选择器切换到刚添加的模型，发送一句话。收到回复即成功；本站 <strong>使用日志</strong> 中会出现这笔调用。</p>\n<h2>常见问题</h2>\n<ul>\n<li><strong>拉取不到模型列表</strong>：检查 API 地址是否为 <code>{{API_BASE}}</code>、密钥是否有效。</li>\n<li><strong>对话报 404</strong>：模型名不在你的令牌分组内，换一个模型或调整令牌分组。</li>\n<li><strong>想一键配置</strong>：Cherry Studio 也支持从本站 <strong>控制台侧边栏 → 聊天入口</strong> 一键跳转导入（若管理员已配置）。</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/immersive-translate",
+      "group": "客户端与工具",
+      "title": "接入沉浸式翻译",
+      "summary": "让沉浸式翻译使用本站中转的模型。",
+      "html": "<p>沉浸式翻译（Immersive Translate）是广受欢迎的浏览器双语翻译扩展。接入 本站 后，可以用更强的模型获得远超机器翻译的质量。</p>\n<h2>第 1 步：安装扩展</h2>\n<p>从官网安装浏览器扩展：<a href=\"https://immersivetranslate.com\">https://immersivetranslate.com</a></p>\n<h2>第 2 步：配置自定义 API</h2>\n<ol>\n<li>点击扩展图标 → <strong>设置</strong> → <strong>翻译服务</strong></li>\n<li>找到 <strong>OpenAI</strong>（或「自定义 AI 翻译服务」），点击进入设置</li>\n<li>填写：\n<ul>\n<li><strong>APIKEY</strong>：<code>sk-your-api-key</code></li>\n<li><strong>模型</strong>：选「自定义」，填入模型名（推荐轻量快速的模型，如 <code>gpt-4o-mini</code>）</li>\n<li><strong>自定义 API 接口地址</strong>：<code>{{API_BASE}}/v1/chat/completions</code></li>\n</ul>\n</li>\n</ol>\n<h2>第 3 步：控制并发与费用</h2>\n<p>翻译整页会产生大量小请求，建议：</p>\n<ul>\n<li><strong>每秒最大请求数</strong>：从默认值调低到 5-10，避免触发限流（429）</li>\n<li><strong>每次请求最大段落数</strong>：适当调大可减少请求次数、降低费用</li>\n<li>选便宜的模型：翻译对模型要求不高，轻量模型性价比最高（价格见 <strong>定价</strong> 页）</li>\n</ul>\n<h2>第 4 步：验证</h2>\n<p>打开任意外文网页，点击扩展图标启用翻译。译文正常出现即接入成功；调用明细见本站 <strong>使用日志</strong>。</p>\n<h2>常见问题</h2>\n<ul>\n<li><strong>提示 401</strong>：APIKEY 是否完整（<code>sk-</code> 开头）？</li>\n<li><strong>频繁 429</strong>：调低每秒最大请求数；或令牌所在分组限流较紧，参见<a href=\"/docs/guides/troubleshooting\">错误码与排障</a>。</li>\n<li><strong>返回内容为空</strong>：更换模型重试；个别模型对翻译提示词兼容性差。</li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/openai-sdk",
+      "group": "SDK 接入",
+      "title": "接入 OpenAI SDK",
+      "summary": "用官方 OpenAI SDK 在 Python 或 JavaScript 中调用本站。",
+      "html": "<p>本站完全兼容 OpenAI 接口协议：官方 SDK 只需把 <code>base_url</code> 指向 <code>{{API_BASE}}/v1</code> 即可，其余代码与调用官方完全一致。</p>\n<h2>Python</h2>\n<div><pre><code class=\"language-bash\">pip install openai\n</code></pre></div>\n<div><pre><code class=\"language-python\">from openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"sk-your-api-key\",\n    base_url=\"{{API_BASE}}/v1\",\n)\n\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini\",\n    messages=[{\"role\": \"user\", \"content\": \"用一句话打个招呼\"}],\n)\nprint(response.choices[0].message.content)\n</code></pre></div>\n<p>流式输出：</p>\n<div><pre><code class=\"language-python\">stream = client.chat.completions.create(\n    model=\"gpt-4o-mini\",\n    messages=[{\"role\": \"user\", \"content\": \"写一首四行小诗\"}],\n    stream=True,\n)\nfor chunk in stream:\n    delta = chunk.choices[0].delta.content\n    if delta:\n        print(delta, end=\"\", flush=True)\n</code></pre></div>\n<h2>JavaScript / TypeScript</h2>\n<div><pre><code class=\"language-bash\">npm install openai\n</code></pre></div>\n<div><pre><code class=\"language-ts\">import OpenAI from 'openai'\n\nconst client = new OpenAI({\n  apiKey: 'sk-your-api-key',\n  baseURL: '{{API_BASE}}/v1',\n})\n\nconst response = await client.chat.completions.create({\n  model: 'gpt-4o-mini',\n  messages: [{ role: 'user', content: '用一句话打个招呼' }],\n})\nconsole.log(response.choices[0].message.content)\n</code></pre></div>\n<h2>建议</h2>\n<ul>\n<li><strong>密钥放环境变量</strong>：生产代码用 <code>OPENAI_API_KEY</code> / <code>OPENAI_BASE_URL</code> 环境变量，避免硬编码</li>\n<li><strong>模型名</strong>以 <strong>定价</strong> 页为准；跨供应商模型（Claude、Gemini 等）同样通过此 OpenAI 兼容接口调用</li>\n<li><strong>LangChain / LlamaIndex</strong> 等框架：凡是支持自定义 <code>base_url</code> 的 OpenAI 集成均可直接使用</li>\n<li>报错处理参见<a href=\"/docs/guides/troubleshooting\">错误码与排障</a></li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/anthropic-sdk",
+      "group": "SDK 接入",
+      "title": "接入 Anthropic SDK",
+      "summary": "用官方 Anthropic SDK 调用 Claude 格式接口。",
+      "html": "<p>本站兼容 Anthropic Messages 协议：官方 SDK 把 <code>base_url</code> 指向 <code>{{API_BASE}}</code> 即可直接调用 Claude 系列模型。</p>\n<h2>Python</h2>\n<div><pre><code class=\"language-bash\">pip install anthropic\n</code></pre></div>\n<div><pre><code class=\"language-python\">import anthropic\n\nclient = anthropic.Anthropic(\n    api_key=\"sk-your-api-key\",\n    base_url=\"{{API_BASE}}\",\n)\n\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"用一句话打个招呼\"}],\n)\nprint(message.content[0].text)\n</code></pre></div>\n<h2>JavaScript / TypeScript</h2>\n<div><pre><code class=\"language-bash\">npm install @anthropic-ai/sdk\n</code></pre></div>\n<div><pre><code class=\"language-ts\">import Anthropic from '@anthropic-ai/sdk'\n\nconst client = new Anthropic({\n  apiKey: 'sk-your-api-key',\n  baseURL: '{{API_BASE}}',\n})\n\nconst message = await client.messages.create({\n  model: 'claude-sonnet-4-5-20250929',\n  max_tokens: 1024,\n  messages: [{ role: 'user', content: '用一句话打个招呼' }],\n})\nconsole.log(message.content)\n</code></pre></div>\n<h2>要点</h2>\n<ul>\n<li><code>base_url</code> 填站点根地址 <code>{{API_BASE}}</code>（SDK 自己会拼 <code>/v1/messages</code>），<strong>不要加 <code>/v1</code></strong></li>\n<li>认证既支持 SDK 默认的 <code>x-api-key</code>，也支持 <code>Authorization: Bearer</code></li>\n<li><code>max_tokens</code> 是 Anthropic 协议的必填参数</li>\n<li>Claude 模型也可以通过 <a href=\"/docs/guides/openai-sdk\">OpenAI 兼容接口</a>调用，二选一即可</li>\n<li>模型名以 <strong>定价</strong> 页为准；报错处理见<a href=\"/docs/guides/troubleshooting\">错误码与排障</a></li>\n</ul>"
+    },
+    {
+      "route": "/docs/guides/troubleshooting",
+      "group": "故障排查",
+      "title": "错误码与排障",
+      "summary": "401、403、413、429、503 在本站分别意味着什么，以及如何解决。",
+      "html": "<p>遇到报错时，先在 <strong>使用日志</strong> 里找到那次请求的完整错误信息，再按下表定位。大多数问题两分钟内可以自查解决。</p>\n<h2>快速自检三步</h2>\n<ol>\n<li><strong>站内验证</strong>：打开 <strong>Playground</strong> 用同一个模型发一句话。站内能通说明服务正常，问题出在你的客户端配置。</li>\n<li><strong>核对三要素</strong>：Base URL（是否多了/少了 <code>/v1</code>）、令牌（<code>sk-</code> 前缀是否完整）、模型名（以 <strong>定价</strong> 页为准）。</li>\n<li><strong>查使用日志</strong>：每次失败调用的状态码和错误详情都在里面。</li>\n</ol>\n<h2>错误码对照表</h2>\n<table><thead><tr><th>状态码</th><th>典型报错</th><th>原因与解法</th></tr></thead><tbody><tr><td>401</td><td><code>invalid_api_key</code></td><td>令牌错误、被删除或缺 <code>sk-</code> 前缀；Base URL 填成了别站。重建令牌并核对 <code>{{API_BASE}}</code></td></tr><tr><td>403</td><td><code>Forbidden</code></td><td>令牌设置了模型/IP 限制，或分组无权访问该模型。检查令牌设置，必要时新建不限模型的令牌</td></tr><tr><td>404</td><td><code>model_not_found</code></td><td>模型名拼写错误、分组内无此模型，或路径少了 <code>/v1</code>。到定价页复制准确模型名</td></tr><tr><td>408</td><td>请求超时</td><td>增大客户端 timeout；改用流式（stream）调用；换响应更快的模型</td></tr><tr><td>413</td><td><code>context_length_exceeded</code></td><td>输入或对话历史超过模型上下文。裁剪历史、减小 <code>max_tokens</code> 或换长上下文模型</td></tr><tr><td>429</td><td><code>rate_limit_exceeded</code></td><td>触发并发/频率限流。降低并发、加指数退避重试</td></tr><tr><td>429</td><td><code>insufficient_quota</code></td><td>余额或令牌额度不足。到 <strong>钱包</strong> 充值，或调大令牌额度</td></tr><tr><td>500/502</td><td>上游错误</td><td>站点或上游临时故障，稍候重试；持续出现请反馈</td></tr><tr><td>503</td><td><code>no available channel</code></td><td>该模型暂无可用渠道。稍候重试、换模型或换分组；反复出现请把模型名+时间反馈给管理员</td></tr></tbody></table>\n<h2>高频场景</h2>\n<h3>Claude Code 连不上</h3>\n<ul>\n<li><code>ANTHROPIC_BASE_URL</code> 必须是 <code>{{API_BASE}}</code>，<strong>结尾不带 <code>/v1</code></strong></li>\n<li>改完 <code>settings.json</code> 要重启终端</li>\n<li>详见 <a href=\"/docs/guides/claude-code\">Claude Code 指南</a></li>\n</ul>\n<h3>Codex 报 401 或 404</h3>\n<ul>\n<li><code>base_url</code> 必须是 <code>{{API_BASE}}/v1</code>（带 <code>/v1</code>），<code>wire_api = \"responses\"</code></li>\n<li>令牌放在 <code>auth.json</code>，不是 <code>config.toml</code></li>\n<li>详见 <a href=\"/docs/guides/codex-cli\">Codex CLI 指南</a></li>\n</ul>\n<h3>流式响应中断</h3>\n<ul>\n<li>客户端超时调大；<code>curl</code> 加 <code>-N</code> 关闭缓冲</li>\n<li>自建 Nginx 反代需 <code>proxy_buffering off;</code></li>\n</ul>\n<h3>内容被拒绝</h3>\n<ul>\n<li>输入触发内容安全审查。调整措辞；越狱、擦边等高风险用法违反本站规则，反复触发可能被限制账号</li>\n</ul>\n<h2>还是解决不了？</h2>\n<ul>\n<li>把 <strong>使用日志</strong> 里的完整报错（含时间和模型名）通过 <strong>工单</strong> 提交，或联系管理员</li>\n<li>页面右下角的 <strong>AI 助手</strong> 可以直接粘贴报错提问（若站点已启用）</li>\n</ul>"
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "endpoint-0",
+      "group": "模型列表",
+      "navName": "列出模型",
+      "title": "列出模型",
+      "method": "GET",
+      "path": "/v1/models",
+      "description": "返回通道、组和权限过滤后对 API 令牌可见的模型。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n模型可见性仍然由令牌权限和通道配置控制。\n在调用生成 API 之前使用此端点以避免路由到不可用的模型。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/models\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"gpt-4o-mini\",\n      \"object\": \"model\",\n      \"owned_by\": \"openai\"\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "401",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-1",
+      "group": "模型列表",
+      "navName": "获取模型详情",
+      "title": "获取模型详情",
+      "method": "GET",
+      "path": "/v1/models/{model}",
+      "description": "当单个模型标识符对当前令牌可见时，返回该标识符的元数据。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n网关可以跨渠道以不同的方式解析提供商特定的元数据。\n尽可能使用模型列表返回的模型名称。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/models/gpt-4o-mini\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "{\n  \"id\": \"gpt-4o-mini\",\n  \"object\": \"model\",\n  \"owned_by\": \"openai\"\n}",
+      "statuses": [
+        "200",
+        "401",
+        "404"
+      ]
+    },
+    {
+      "id": "endpoint-2",
+      "group": "聊天",
+      "navName": "聊天完成",
+      "title": "聊天完成格式",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "description": "根据对话历史记录创建模型响应。与 OpenAI Chat Completions API 兼容，并在所选模型支持时支持流式传输。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json or text/event-stream\n\n这是与 OpenAI 兼容的聊天客户端的主要端点。\n流式响应使用服务器发送的事件；当启用上游时，客户端应该处理增量块和最终使用。\n当后端转发支持的字段时，可选标量参数会保留显式的零和假值。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/chat/completions\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"gpt-4o-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a concise assistant.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Say hello in one sentence.\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"stream\": false\n}'",
+      "responseExample": "{\n  \"id\": \"chatcmpl-abc123\",\n  \"object\": \"chat.completion\",\n  \"created\": 1710000000,\n  \"model\": \"gpt-4o-mini\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"Hello! How can I help?\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 18,\n    \"completion_tokens\": 7,\n    \"total_tokens\": 25\n  }\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-3",
+      "group": "聊天",
+      "navName": "回复格式",
+      "title": "回复格式",
+      "method": "POST",
+      "path": "/v1/responses",
+      "description": "使用与 OpenAI Responses 兼容的中继路径创建响应。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n对于已定位 OpenAI Responses API 的客户端，请使用此端点。\n网关仍然应用相同的令牌身份验证、速率限制和通道分发层。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/responses\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"gpt-4o-mini\",\n  \"input\": \"Write a one-line product tagline.\",\n  \"instructions\": \"Be concise.\"\n}'",
+      "responseExample": "{\n  \"id\": \"resp_abc123\",\n  \"object\": \"response\",\n  \"status\": \"completed\",\n  \"model\": \"gpt-4o-mini\",\n  \"output_text\": \"One gateway. Every model.\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-4",
+      "group": "聊天",
+      "navName": "紧凑响应",
+      "title": "紧凑响应",
+      "method": "POST",
+      "path": "/v1/responses/compact",
+      "description": "为需要响应压缩行为的客户端创建压缩的响应兼容请求。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n该路由是独立的，因此客户端可以选择压缩而不更改基本响应路径。\n使用普通的响应端点，除非您的客户端明确需要压缩语义。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/responses/compact\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"gpt-4o-mini\",\n  \"input\": \"Summarize the prior conversation in three bullets.\"\n}'",
+      "responseExample": "{\n  \"id\": \"resp_compact_abc123\",\n  \"object\": \"response\",\n  \"status\": \"completed\",\n  \"output_text\": \"- Point one\\n- Point two\\n- Point three\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-5",
+      "group": "聊天",
+      "navName": "Claude 消息",
+      "title": "Claude 消息",
+      "method": "POST",
+      "path": "/v1/messages",
+      "description": "通过网关使用 Claude 兼容的消息端点。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n本地克劳德格式\n\n响应类型\n\napplication/json\n\n对于以 Anthropic Claude 消息语义为目标的客户端，请使用此路由。\n网关仍然使用自己的 API 令牌进行身份验证，然后分发到配置的上游通道。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/messages\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"claude-3-5-sonnet-latest\",\n  \"max_tokens\": 256,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Explain this gateway in one sentence.\"\n    }\n  ]\n}'",
+      "responseExample": "{\n  \"id\": \"msg_abc123\",\n  \"type\": \"message\",\n  \"role\": \"assistant\",\n  \"content\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"It unifies AI provider access behind one controlled API.\"\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-6",
+      "group": "补全",
+      "navName": "创建补全",
+      "title": "创建补全",
+      "method": "POST",
+      "path": "/v1/completions",
+      "description": "为支持 OpenAI Completions 格式的模型创建旧文本完成。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n对于现代聊天模型，更喜欢聊天完成。\n对于仍然公开完成语义的旧版 SDK 和模型，请保留此路线。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/completions\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"gpt-3.5-turbo-instruct\",\n  \"prompt\": \"Write a short API gateway tagline:\",\n  \"max_tokens\": 32\n}'",
+      "responseExample": "{\n  \"id\": \"cmpl_abc123\",\n  \"object\": \"text_completion\",\n  \"choices\": [\n    {\n      \"text\": \" Unified access for every AI model.\",\n      \"index\": 0,\n      \"finish_reason\": \"stop\"\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-7",
+      "group": "嵌入",
+      "navName": "创建嵌入",
+      "title": "创建嵌入",
+      "method": "POST",
+      "path": "/v1/embeddings",
+      "description": "通过兼容的嵌入模型为文本输入生成向量嵌入。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n嵌入尺寸取决于所选的上游模型。\n批量输入可能会增加一次请求中的令牌使用量和计费。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/embeddings\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"text-embedding-3-small\",\n  \"input\": \"The quick brown fox jumps over the lazy dog.\"\n}'",
+      "responseExample": "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"object\": \"embedding\",\n      \"index\": 0,\n      \"embedding\": [0.0123, -0.0456, 0.0789]\n    }\n  ],\n  \"model\": \"text-embedding-3-small\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-8",
+      "group": "重新排序",
+      "navName": "创建重排序请求",
+      "title": "创建重排序请求",
+      "method": "POST",
+      "path": "/v1/rerank",
+      "description": "使用支持的重新排序模型根据查询对候选文档进行排序。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n重新排序格式\n\n响应类型\n\napplication/json\n\n重新排序请求通过专用的重新排序中继格式进行路由。\n在发送大批量之前，应将文档修剪到上游提供商的限制。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/rerank\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"rerank-model\",\n  \"query\": \"best AI gateway\",\n  \"documents\": [\n    \"Unified API routing for model providers.\",\n    \"A guide to database migrations.\"\n  ],\n  \"top_n\": 2\n}'",
+      "responseExample": "{\n  \"results\": [\n    {\n      \"index\": 0,\n      \"relevance_score\": 0.98\n    },\n    {\n      \"index\": 1,\n      \"relevance_score\": 0.12\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-9",
+      "group": "内容审查",
+      "navName": "创建内容审查",
+      "title": "创建内容审查",
+      "method": "POST",
+      "path": "/v1/moderations",
+      "description": "执行内容安全检查，作为合规流程的一部分。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n适度是一种合规性帮助，而不是替代您自己的安全治理。\n面向公众的服务应将此端点与滥用报告、日志记录和执行工作流程结合起来。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/moderations\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"omni-moderation-latest\",\n  \"input\": \"I want to understand API safety controls.\"\n}'",
+      "responseExample": "{\n  \"id\": \"modr_abc123\",\n  \"model\": \"omni-moderation-latest\",\n  \"results\": [\n    {\n      \"flagged\": false,\n      \"categories\": {}\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-10",
+      "group": "音频",
+      "navName": "创建语音",
+      "title": "创建语音",
+      "method": "POST",
+      "path": "/v1/audio/speech",
+      "description": "使用兼容的语音模型将文本转换为音频。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\naudio/*\n\n响应内容类型取决于上游模型和请求的格式。\n直接持久化二进制响应；成功时不要将其解析为 JSON。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/audio/speech\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"tts-1\",\n  \"input\": \"Welcome to Hlool API.\",\n  \"voice\": \"alloy\",\n  \"response_format\": \"mp3\"\n}'",
+      "responseExample": "\"<binary audio bytes>\"",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-11",
+      "group": "音频",
+      "navName": "创建转录",
+      "title": "创建转录",
+      "method": "POST",
+      "path": "/v1/audio/transcriptions",
+      "description": "将上传的音频转录为文本。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n该端点需要多部分表单数据，因为音频字节是随请求上传的。\n不要手动设置多部分边界；让您的 HTTP 客户端生成它。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/audio/transcriptions\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -F \"model=whisper-1\" \\\n  -F \"file=@audio.mp3\"",
+      "responseExample": "{\n  \"text\": \"Welcome to Hlool API.\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-12",
+      "group": "音频",
+      "navName": "创建翻译",
+      "title": "创建翻译",
+      "method": "POST",
+      "path": "/v1/audio/translations",
+      "description": "如果支持，将上传的音频翻译成英文文本。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n该端点遵循 OpenAI 兼容的音频翻译形状。\n提供程序支持和目标语言行为取决于配置的上游通道。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/audio/translations\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -F \"model=whisper-1\" \\\n  -F \"file=@audio.mp3\"",
+      "responseExample": "{\n  \"text\": \"Welcome to Hlool API.\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-13",
+      "group": "实时语音",
+      "navName": "打开实时会话",
+      "title": "打开实时会话",
+      "method": "GET",
+      "path": "/v1/realtime",
+      "description": "为兼容的低延迟音频客户端打开实时中继连接。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n兼容 OpenAI 的实时\n\n响应类型\n\nwebsocket / realtime stream\n\n实时客户端应在连接设置期间保持身份验证标头可用。\n所选上行通道必须支持实时中继行为。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/realtime\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "\"<realtime stream>\"",
+      "statuses": [
+        "200",
+        "401",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-14",
+      "group": "图片",
+      "navName": "创建图像生成",
+      "title": "创建图像生成",
+      "method": "POST",
+      "path": "/v1/images/generations",
+      "description": "通过兼容的图像生成模型生成图像。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n优先使用 response_format=url：响应体保持极小，图片从对象存储直接下载，避免数 MB 的 base64 撑爆 API 响应。\n托管图片链接有效期有限（约 1 小时）——需要长期保存的图片请及时下载。\n生图不需要流式：即使开启 stream，也只会收到一条携带最终 url 的完成事件。\n大图像尺寸和多个输出可能会产生更高的计费影响。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/images/generations\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"gpt-image-1\",\n  \"prompt\": \"A compact API gateway dashboard in a clean product UI\",\n  \"n\": 1,\n  \"size\": \"1024x1024\",\n  \"response_format\": \"url\"\n}'",
+      "responseExample": "{\n  \"created\": 1710000000,\n  \"data\": [\n    {\n      \"url\": \"https://example.com/generated-image.png\"\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-15",
+      "group": "图片",
+      "navName": "创建图像编辑",
+      "title": "创建图像编辑",
+      "method": "POST",
+      "path": "/v1/images/edits",
+      "description": "使用兼容的图像模型编辑上传的图像。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 OpenAI 格式\n\n响应类型\n\napplication/json\n\n该端点需要多部分表单数据，因为源图像已上传。\n优先使用 response_format=url：响应体保持极小，图片从对象存储直接下载，避免数 MB 的 base64 撑爆 API 响应。\n托管图片链接有效期有限（约 1 小时）——需要长期保存的图片请及时下载。\n特定于提供商的限制适用于图像大小、蒙版和输出格式。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/images/edits\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -F \"image=@image.png\" \\\n  -F \"prompt=Add a subtle product UI glow.\"",
+      "responseExample": "{\n  \"created\": 1710000000,\n  \"data\": [\n    {\n      \"url\": \"https://example.com/edited-image.png\"\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-16",
+      "group": "视频",
+      "navName": "创建视频",
+      "title": "创建视频",
+      "method": "POST",
+      "path": "/v1/videos",
+      "description": "创建兼容 OpenAI 的视频生成任务。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容视频\n\n响应类型\n\napplication/json\n\n视频生成是基于任务的；使用检索端点来轮询完成情况。\n生成的内容完成后可以通过内容代理端点下载。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/videos\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"model\": \"sora\",\n  \"prompt\": \"A clean API dashboard animating from request to response.\",\n  \"size\": \"1280x720\",\n  \"seconds\": 5\n}'",
+      "responseExample": "{\n  \"id\": \"video_task_abc123\",\n  \"object\": \"video\",\n  \"status\": \"queued\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-17",
+      "group": "视频",
+      "navName": "获取视频任务",
+      "title": "获取视频任务",
+      "method": "GET",
+      "path": "/v1/videos/{task_id}",
+      "description": "获取视频任务的最新状态和元数据。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容视频\n\n响应类型\n\napplication/json\n\n轮询此端点，直到任务达到最终状态。\n仅在任务报告生成的资产后才使用内容端点。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/videos/video_task_abc123\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "{\n  \"id\": \"video_task_abc123\",\n  \"object\": \"video\",\n  \"status\": \"completed\",\n  \"content_url\": \"/v1/videos/video_task_abc123/content\"\n}",
+      "statuses": [
+        "200",
+        "401",
+        "404"
+      ]
+    },
+    {
+      "id": "endpoint-18",
+      "group": "视频",
+      "navName": "下载视频内容",
+      "title": "下载视频内容",
+      "method": "GET",
+      "path": "/v1/videos/{task_id}/content",
+      "description": "代理已完成的视频生成任务生成的视频内容。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由接受仪表板会话或 API 令牌。\n\n继电器格式\n\nOpenAI 兼容视频\n\n响应类型\n\nvideo/*\n\n该路由接受仪表板会话身份验证或 API 令牌身份验证。\n将成功的响应视为二进制媒体，而不是 JSON。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/videos/video_task_abc123/content\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "\"<binary video bytes>\"",
+      "statuses": [
+        "200",
+        "401",
+        "404"
+      ]
+    },
+    {
+      "id": "endpoint-19",
+      "group": "视频",
+      "navName": "视频二创",
+      "title": "视频二创",
+      "method": "POST",
+      "path": "/v1/videos/{video_id}/remix",
+      "description": "从现有视频标识符创建新视频任务。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容视频\n\n响应类型\n\napplication/json\n\n当上游视频提供商支持重新混合现有资源时，请使用此路由。\n源视频标识符是路径的一部分，而混音指令则位于正文中。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1/videos/video_abc123/remix\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"prompt\": \"Make the motion slower and keep the dashboard readable.\"\n}'",
+      "responseExample": "{\n  \"id\": \"video_task_remix_abc123\",\n  \"object\": \"video\",\n  \"status\": \"queued\"\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-20",
+      "group": "Gemini 原生",
+      "navName": "执行 Gemini 模型动作",
+      "title": "执行 Gemini 模型动作",
+      "method": "POST",
+      "path": "/v1beta/models/{model}:{action}",
+      "description": "通过网关转发原生 Gemini 模型动作。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\n原生 Gemini 格式\n\n响应类型\n\napplication/json\n\n通配符路径保留 Gemini 本机操作语法，例如 :generateContent。\n将此路由用于本机 Gemini 客户端，而不是 OpenAI 兼容客户端。",
+      "requestExample": "curl -X POST \"{{API_BASE}}/v1beta/models/gemini-1.5-pro:generateContent\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Explain this API gateway in one sentence.\"\n        }\n      ]\n    }\n  ]\n}'",
+      "responseExample": "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\": [\n          {\n            \"text\": \"Hlool API unifies access to multiple AI providers.\"\n          }\n        ]\n      }\n    }\n  ]\n}",
+      "statuses": [
+        "200",
+        "400",
+        "429"
+      ]
+    },
+    {
+      "id": "endpoint-21",
+      "group": "兼容占位接口",
+      "navName": "兼容占位接口",
+      "title": "兼容占位接口",
+      "method": "GET",
+      "path": "/v1/files",
+      "description": "保留的 OpenAI 兼容路由是为了 SDK 兼容性而存在，但目前返回尚未实现。",
+      "details": "这些注释解释了网关如何处理此端点的身份验证、路由和响应形状。\n\n身份验证\n\n此路由需要授权标头中的 API 令牌。\n\n继电器格式\n\nOpenAI 兼容格式\n\n响应类型\n\napplication/json\n\n存根路由可帮助旧版 SDK 始终失败，而不是到达未知路径。\n在实施这些路线之前，请勿在这些路线上构建新的集成。",
+      "requestExample": "curl -X GET \"{{API_BASE}}/v1/files\" \\\n  -H \"Authorization: Bearer $NEW_API_KEY\"",
+      "responseExample": "{\n  \"error\": {\n    \"message\": \"This compatibility route is not implemented.\",\n    \"type\": \"not_implemented_error\",\n    \"code\": \"not_implemented\"\n  }\n}",
+      "statuses": [
+        "501",
+        "401",
+        "429"
+      ]
+    }
+  ]
+}

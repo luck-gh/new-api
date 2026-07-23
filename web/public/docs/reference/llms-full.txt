@@ -1,0 +1,138 @@
+# SHUAI API AI Context
+
+Unified AI API gateway and admin dashboard.
+
+Generated: 2026-07-22T07:55:26Z
+Base URL: {{API_BASE}}
+
+<doc id="site" source="runtime-public-settings">
+
+# Site Information
+
+Unified AI API gateway and admin dashboard.
+
+- Site: SHUAI API
+- Version: sha-49226cd
+- Base URL: {{API_BASE}}
+- Human documentation: {{API_BASE}}/docs
+
+## System Notice
+
+欢迎来到本站，本站由Hlool运营，欢迎各位的到来。
+
+## API Addresses
+
+- `{{API_BASE}}/` (CF优选路线): 常规路线，大众可用，亚太外可能访问不佳
+- `https://oai.sb/` (CF未优化路线): 适用于全球访问
+- `https://api.oai.sb/` (亚太CDN渠道2): 适用于亚太地区的api使用
+
+## Announcements
+
+- [2026-07-03T12:48:06.816Z] (success) 点击链接加入群聊【「本站」售后109群】：https://qm.qq.com/q/2ARJ661qZq
+
+## FAQ
+
+### 为什么我在文本对话里面对话不了？
+
+1.站点内很多模型都仅限CC和codex中使用，或者禁止非流式输出，不建议测活。
+2.可以加入Q群，号池有情况会提前通知的。
+
+### 为什么叫做本站
+
+站长很帅
+
+## Recommended Models
+
+- `kimi-k3` - 国模崛起之作: 国模目前集大成之作！kimi你拯救了一切！缺点是价格和肥波对标了...
+- `gpt-5.6-sol` - OAI在交出的答卷: 思考可能会很长，很喜欢调用智能体，建议开高即可
+- `grok-4.5` - Xai最新力作: 老马强力推荐，响应t/s超百，智商前端都在线，目前正在测试中
+- `claude-fable-5` - 集A/大成之作：肥波波波5: 7月7后就只剩下正价渠道了，体验下最强模型吧！
+
+## Third-Party Reports
+
+- [Claude检测报告](https://modeloc.com/relay/{{API_HOST}}) - MODELOC: 确认为真
+- [GPT检测报告](https://modeloc.com/r/pb8MUE12qDGzgjq1b-1j2H2Fi4A-e1EzClz_irUIpLY) - MODELOC: 确认为真
+
+## Support
+
+- After-sales QQ group: 1065256695
+
+
+</doc>
+
+<doc id="api" source="runtime-supported-endpoints">
+
+# API Reference
+
+Public API endpoint summary for AI assistants.
+
+## Authentication
+
+Relay API requests use bearer-token authentication:
+
+```http
+Authorization: Bearer <token>
+```
+
+Use the dashboard to create API tokens. Do not send dashboard session cookies to third-party AI tools.
+
+## Base URL
+
+`{{API_BASE}}`
+
+## Core Endpoints
+
+| Type | Method | Path |
+| --- | --- | --- |
+| `models` | `GET` | `/v1/models` |
+| `anthropic` | `POST` | `/v1/messages` |
+| `embeddings` | `POST` | `/v1/embeddings` |
+| `gemini` | `POST` | `/v1beta/models/{model}:generateContent` |
+| `image-generation` | `POST` | `/v1/images/generations` |
+| `jina-rerank` | `POST` | `/v1/rerank` |
+| `openai` | `POST` | `/v1/chat/completions` |
+| `openai-response` | `POST` | `/v1/responses` |
+| `openai-response-compact` | `POST` | `/v1/responses/compact` |
+
+## Compatibility Notes
+
+- `/v1/chat/completions` follows OpenAI-compatible chat completion semantics.
+- `/v1/responses` follows OpenAI-compatible responses semantics where configured.
+- `/v1/messages` provides Anthropic-compatible message routing.
+- `/v1beta/models/{model}:generateContent` provides Gemini-compatible routing.
+- Exact model availability depends on enabled channels, user group, token restrictions, and billing configuration.
+
+</doc>
+
+<doc id="models" source="pricing-cache">
+
+# Models and Pricing
+
+Public enabled model and billing summary.
+
+## Enabled Models
+
+| Model | Owner | Endpoints | Groups | Billing |
+| --- | --- | --- | --- | --- |
+| `claude-fable-5` | Anthropic | anthropic, openai | CC专用分组-无限制可外接, CC专用分组-禁非流等 | ratio 5, completion 5 |
+| `claude-haiku-4-5` | Anthropic | anthropic, openai | kiro低价claude, CC专用分组-无限制可外接, CC专用分组-禁非流等 | ratio 0.5, completion 5 |
+| `claude-haiku-4-5-20251001` | Anthropic | anthropic, openai | kiro低价claude, CC专用分组-无限制可外接, CC专用分组-禁非流等 | ratio 0.5, completion 5 |
+| `claude-opus-4-6` | Anthropic | anthropic, openai | CC专用分组-无限制可外接, CC专用分组-禁非流等, kiro低价claude | ratio 2.5, completion 5 |
+| `claude-opus-4-7` | Anthropic | anthropic, openai | kiro低价claude, CC专用分组-禁非流等, CC专用分组-无限制可外接 | ratio 2.5, completion 5 |
+| `claude-opus-4-8` | Anthropic | anthropic, openai | kiro低价claude, CC专用分组-无限制可外接, CC专用分组-禁非流等 | ratio 2.5, completion 5 |
+| `claude-sonnet-4-6` | Anthropic | anthropic, openai | CC专用分组-禁非流等, CC专用分组-无限制可外接, kiro低价claude | ratio 1.5, completion 5 |
+| `claude-sonnet-5` | Anthropic | anthropic, openai | CC专用分组-无限制可外接, CC专用分组-禁非流等, kiro低价claude | ratio 1, completion 5 |
+| `codex-auto-review` | OpenAI | openai | 0.01优惠码分组, codexPro分组兜底, codexPro分组 | ratio 0.375, completion 6 |
+| `gpt-5.3-codex-spark` | OpenAI | openai | codexPro分组兜底, codexPro分组 | ratio 37.5, completion 8 |
+| `gpt-5.4` | OpenAI | openai | codexPro分组兜底, codexPro分组, plus高不稳定分组, 0.01优惠码分组 | dynamic expression billing |
+| `gpt-5.4-mini` | OpenAI | openai | codexPro分组兜底, codexPro分组, 0.01优惠码分组 | dynamic expression billing |
+| `gpt-5.5` | OpenAI | openai | codexPro分组兜底, codexPro分组, 0.01优惠码分组, plus高不稳定分组 | dynamic expression billing |
+| `gpt-5.6` | OpenAI | openai | codexPro分组, codexPro分组兜底, plus高不稳定分组 | dynamic expression billing |
+| `gpt-5.6-luna` | OpenAI | openai | codexPro分组兜底, plus高不稳定分组, 0.01优惠码分组, codexPro分组 | dynamic expression billing |
+| `gpt-5.6-sol` | OpenAI | openai | codexPro分组, codexPro分组兜底, plus高不稳定分组, 0.01优惠码分组 | dynamic expression billing |
+| `gpt-5.6-terra` | OpenAI | openai | 0.01优惠码分组, plus高不稳定分组, codexPro分组兜底, codexPro分组 | dynamic expression billing |
+| `grok-4.5` | xAI | openai | grok测试分组 | ratio 1, completion 3 |
+
+Billing values are gateway quota configuration, not upstream provider retail prices. Final cost can vary by group ratio, model rules, dynamic billing expressions, and account configuration.
+
+</doc>

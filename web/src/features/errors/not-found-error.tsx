@@ -21,6 +21,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 
+import { ErrorPageBrand } from './error-page-brand'
+
 export function NotFoundError() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -28,6 +30,7 @@ export function NotFoundError() {
   return (
     <div className='h-svh'>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
+        <ErrorPageBrand />
         <h1 className='text-[7rem] leading-tight font-bold'>404</h1>
         <span className='font-medium'>{t('Oops! Page Not Found!')}</span>
         <p className='text-muted-foreground text-center'>
