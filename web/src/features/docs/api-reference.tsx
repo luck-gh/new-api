@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 import { endpointTitle } from './docs-copy'
+import { injectDocsToken, useDocsTokenStore } from './docs-token-store'
 import type { DocsEndpoint } from './types'
 
 const LANGUAGES = ['cURL', 'JavaScript', 'Python', 'Go'] as const
@@ -34,19 +35,29 @@ type CodeLanguage = (typeof LANGUAGES)[number]
 function requestCode(
   language: CodeLanguage,
   endpoint: DocsEndpoint,
-  apiBase: string
+  apiBase: string,
+  token: string
 ) {
   const url = `${apiBase}${endpoint.path}`
   if (language === 'JavaScript') {
-    return `const response = await fetch('${url}', {\n  method: '${endpoint.method}',\n  headers: {\n    Authorization: 'Bearer $NEW_API_KEY',\n    'Content-Type': 'application/json',\n  },\n});\n\nconst data = await response.json();`
+    return injectDocsToken(
+      `const response = await fetch('${url}', {\n  method: '${endpoint.method}',\n  headers: {\n    Authorization: 'Bearer $NEW_API_KEY',\n    'Content-Type': 'application/json',\n  },\n});\n\nconst data = await response.json();`,
+      token
+    )
   }
   if (language === 'Python') {
-    return `import requests\n\nresponse = requests.${endpoint.method.toLowerCase()}(\n    '${url}',\n    headers={'Authorization': 'Bearer $NEW_API_KEY'},\n)\n\nprint(response.json())`
+    return injectDocsToken(
+      `import requests\n\nresponse = requests.${endpoint.method.toLowerCase()}(\n    '${url}',\n    headers={'Authorization': 'Bearer $NEW_API_KEY'},\n)\n\nprint(response.json())`,
+      token
+    )
   }
   if (language === 'Go') {
-    return `req, _ := http.NewRequest("${endpoint.method}", "${url}", nil)\nreq.Header.Set("Authorization", "Bearer $NEW_API_KEY")\nresp, err := http.DefaultClient.Do(req)`
+    return injectDocsToken(
+      `req, _ := http.NewRequest("${endpoint.method}", "${url}", nil)\nreq.Header.Set("Authorization", "Bearer $NEW_API_KEY")\nresp, err := http.DefaultClient.Do(req)`,
+      token
+    )
   }
-  return endpoint.requestExample
+  return injectDocsToken(endpoint.requestExample, token)
 }
 
 function CodePanel(props: { label: string; code: string }) {
@@ -91,6 +102,7 @@ export function ApiReference(props: {
 }) {
   const { i18n, t } = useTranslation()
   const reduceMotion = useReducedMotion()
+  const token = useDocsTokenStore((state) => state.token)
   const isChinese = i18n.language.startsWith('zh')
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState('endpoint-2')
@@ -266,7 +278,7 @@ export function ApiReference(props: {
             </div>
             <CodePanel
               label={t('docs.api.requestExample')}
-              code={requestCode(language, selected, props.apiBase)}
+              code={requestCode(language, selected, props.apiBase, token)}
             />
           </section>
         </main>
@@ -292,7 +304,7 @@ export function ApiReference(props: {
             </div>
             <CodePanel
               label={t('docs.api.requestExample')}
-              code={requestCode(language, selected, props.apiBase)}
+              code={requestCode(language, selected, props.apiBase, token)}
             />
             <section>
               <div className='mb-2 flex flex-wrap gap-1'>

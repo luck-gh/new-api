@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
 import { guideSummary, guideTitle } from './docs-copy'
+import { injectDocsToken, useDocsTokenStore } from './docs-token-store'
 import type { DocsGuide } from './types'
 
 export function GuidePage(props: {
@@ -38,6 +39,7 @@ export function GuidePage(props: {
   const { i18n, t } = useTranslation()
   const navigate = useNavigate()
   const reduceMotion = useReducedMotion()
+  const token = useDocsTokenStore((state) => state.token)
   const currentIndex = useMemo(
     () => props.guides.findIndex((guide) => guide.route === props.guide?.route),
     [props.guide?.route, props.guides]
@@ -66,12 +68,13 @@ export function GuidePage(props: {
   }
 
   const guide = props.guide
-  const safeHtml = DOMPurify.sanitize(guide.html)
+  const injectedHtml = injectDocsToken(guide.html, token)
+  const safeHtml = DOMPurify.sanitize(injectedHtml)
   const isChinese = i18n.language.startsWith('zh')
 
   const copyGuide = async () => {
     const parser = new DOMParser()
-    const article = parser.parseFromString(guide.html, 'text/html')
+    const article = parser.parseFromString(injectedHtml, 'text/html')
     await navigator.clipboard.writeText(
       `# ${guideTitle(t, guide)}\n\n${guideSummary(t, guide)}\n\n${article.body.innerText}`
     )
@@ -156,7 +159,12 @@ export function GuidePage(props: {
             ))}
           </ol>
           <pre className='border-border/70 bg-muted/45 overflow-x-auto rounded-xl border p-5 text-xs leading-6'>
-            <code>{`curl ${props.apiBase}/v1/models \\\n  -H "Authorization: Bearer $NEW_API_KEY"`}</code>
+            <code>
+              {injectDocsToken(
+                `curl ${props.apiBase}/v1/models \\\n  -H "Authorization: Bearer $NEW_API_KEY"`,
+                token
+              )}
+            </code>
           </pre>
           <details className='border-border/60 rounded-xl border'>
             <summary className='cursor-pointer px-5 py-4 text-sm font-medium'>

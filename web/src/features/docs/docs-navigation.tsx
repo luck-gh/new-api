@@ -31,14 +31,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
 import { GUIDE_GROUPS, guideSlug, guideTitle } from './docs-copy'
@@ -141,30 +133,26 @@ export function MobileDocsNavigation(props: DocsNavigationProps) {
   const [open, setOpen] = useState(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        render={
-          <Button
-            variant='outline'
-            size='sm'
-            className='rounded-lg lg:hidden'
-          />
-        }
+    <div className='lg:hidden'>
+      <Button
+        variant='outline'
+        size='sm'
+        className='rounded-lg'
+        aria-expanded={open}
+        aria-controls='mobile-docs-navigation'
+        onClick={() => setOpen((value) => !value)}
       >
         <Menu className='size-4' />
         {t('docs.navigation.contents')}
-      </SheetTrigger>
-      <SheetContent side='left' className='w-[19rem] sm:max-w-[19rem]'>
-        <SheetHeader className='border-b px-5 py-5'>
-          <SheetTitle>{t('docs.title')}</SheetTitle>
-          <SheetDescription>
-            {t('docs.navigation.description')}
-          </SheetDescription>
-        </SheetHeader>
-        <div className='min-h-0 flex-1 overflow-y-auto px-3 py-5'>
+      </Button>
+      {open ? (
+        <div
+          id='mobile-docs-navigation'
+          className='border-border/60 bg-background absolute inset-x-4 top-full z-20 mt-3 max-h-[70svh] overflow-y-auto rounded-xl border p-4 shadow-xl sm:inset-x-6'
+        >
           <NavigationContent {...props} onNavigate={() => setOpen(false)} />
         </div>
-      </SheetContent>
-    </Sheet>
+      ) : null}
+    </div>
   )
 }

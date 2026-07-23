@@ -146,7 +146,7 @@ export function SourceHomePolicyAndRequest(
         </div>
       </section>
 
-      <section className='bg-muted/20 text-foreground relative overflow-hidden px-5 pt-24 pb-12 transition-colors duration-700 sm:px-8 md:pt-36'>
+      <section aria-hidden='true' className='hidden'>
         <div className='pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--foreground)_7%,transparent),transparent_58%)]' />
         <div className='relative mx-auto max-w-7xl'>
           <motion.h2

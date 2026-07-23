@@ -30,6 +30,7 @@ import { useSystemConfig } from '@/hooks/use-system-config'
 import { ApiReference } from './api-reference'
 import { DocsHome } from './docs-home'
 import { DesktopDocsNavigation, MobileDocsNavigation } from './docs-navigation'
+import { DocsTokenInjection } from './docs-token-injection'
 import { GuidePage } from './guide-page'
 import { useDocsData } from './use-docs-data'
 
@@ -89,7 +90,7 @@ export function Docs() {
   return (
     <PublicLayout showMainContainer={false}>
       <div className='mx-auto w-full max-w-[96rem] px-4 pt-24 sm:px-6 lg:px-8'>
-        <div className='border-border/60 mb-6 flex items-center justify-between border-b pb-4 lg:hidden'>
+        <div className='border-border/60 relative mb-6 flex items-center justify-between border-b pb-4 lg:hidden'>
           <div>
             <p className='text-sm font-semibold'>{t('docs.title')}</p>
             <p className='text-muted-foreground mt-0.5 text-xs'>
@@ -101,7 +102,10 @@ export function Docs() {
 
         <div className='grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]'>
           <DesktopDocsNavigation guides={guides} pathname={pathname} />
-          <div className='min-w-0'>{content}</div>
+          <div className='min-w-0'>
+            {pathname !== '/docs' ? <DocsTokenInjection /> : null}
+            {content}
+          </div>
         </div>
       </div>
       <Footer className='mt-8' />

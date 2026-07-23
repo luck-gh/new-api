@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useQuery } from '@tanstack/react-query'
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useStatus } from '@/hooks/use-status'
 import { getNotice } from '@/lib/api'
@@ -64,9 +64,9 @@ function getAnnouncementKey(item: Record<string, unknown>): string {
  */
 export function useNotifications() {
   const [popoverOpen, setPopoverOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'notice' | 'announcements'>(
-    'notice'
-  )
+  const [activeTab, setActiveTab] = useState<
+    'notice' | 'announcements' | 'support'
+  >('notice')
 
   // Fetch Notice from API
   const {
@@ -82,10 +82,16 @@ export function useNotifications() {
   // Fetch Announcements from status
   const { status, loading: statusLoading } = useStatus()
   const announcementsEnabled = status?.announcements_enabled ?? false
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const announcements: Record<string, unknown>[] = announcementsEnabled
-    ? ((status?.announcements || []) as Record<string, unknown>[]).slice(0, 20)
-    : []
+  const announcements = useMemo<Record<string, unknown>[]>(
+    () =>
+      announcementsEnabled
+        ? ((status?.announcements || []) as Record<string, unknown>[]).slice(
+            0,
+            20
+          )
+        : [],
+    [announcementsEnabled, status?.announcements]
+  )
 
   // Notification store
   const {
@@ -129,7 +135,7 @@ export function useNotifications() {
   }
 
   // Handle popover open
-  const handleOpenPopover = (tab?: 'notice' | 'announcements') => {
+  const handleOpenPopover = (tab?: 'notice' | 'announcements' | 'support') => {
     const nextTab = tab || activeTab
 
     // Mark currently visible content as read when opening the notification center
@@ -154,13 +160,23 @@ export function useNotifications() {
   }
 
   // Handle tab change - mark announcements as read when switching to that tab
-  const handleTabChange = (tab: 'notice' | 'announcements') => {
+  const handleTabChange = (tab: 'notice' | 'announcements' | 'support') => {
     setActiveTab(tab)
 
     if (tab === 'announcements') {
       markAnnouncementsAsRead()
     }
   }
+
+  useEffect(() => {
+    const openNotificationCenter = () => handleOpenPopover('notice')
+    window.addEventListener('open-notification-center', openNotificationCenter)
+    return () =>
+      window.removeEventListener(
+        'open-notification-center',
+        openNotificationCenter
+      )
+  })
 
   return {
     // Data

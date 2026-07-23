@@ -16,8 +16,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { Link } from '@tanstack/react-router'
 import type { TFunction } from 'i18next'
-import { Bell, Megaphone } from 'lucide-react'
+import { Bell, LifeBuoy, Megaphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { RichContent } from '@/components/rich-content'
@@ -43,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getAnnouncementColorClass } from '@/lib/colors'
 import { formatDateTimeObject } from '@/lib/time'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 
 interface AnnouncementItem {
   id?: number | string
@@ -56,8 +58,8 @@ interface NotificationPopoverProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   unreadCount: number
-  activeTab: 'notice' | 'announcements'
-  onTabChange: (tab: 'notice' | 'announcements') => void
+  activeTab: 'notice' | 'announcements' | 'support'
+  onTabChange: (tab: 'notice' | 'announcements' | 'support') => void
   notice: string
   announcements: AnnouncementItem[]
   loading: boolean
@@ -302,6 +304,7 @@ export function NotificationPopover({
   className,
 }: NotificationPopoverProps) {
   const { t } = useTranslation()
+  const isAuthenticated = useAuthStore((state) => Boolean(state.auth.user))
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
@@ -341,7 +344,12 @@ export function NotificationPopover({
           value={activeTab}
           onValueChange={onTabChange as (value: string) => void}
         >
-          <TabsList className='grid w-full grid-cols-2'>
+          <TabsList
+            className={cn(
+              'grid w-full',
+              isAuthenticated ? 'grid-cols-3' : 'grid-cols-2'
+            )}
+          >
             <TabsTrigger value='notice' className='gap-1.5'>
               <Bell className='size-3.5' />
               {t('Notice')}
@@ -350,6 +358,12 @@ export function NotificationPopover({
               <Megaphone className='size-3.5' />
               {t('Timeline')}
             </TabsTrigger>
+            {isAuthenticated ? (
+              <TabsTrigger value='support' className='gap-1.5'>
+                <LifeBuoy className='size-3.5' />
+                {t('Tickets')}
+              </TabsTrigger>
+            ) : null}
           </TabsList>
 
           <TabsContent value='notice' className='mt-2'>
@@ -363,6 +377,29 @@ export function NotificationPopover({
               t={t}
             />
           </TabsContent>
+
+          {isAuthenticated ? (
+            <TabsContent value='support' className='mt-2'>
+              <Empty className='min-h-48 border-0 p-4'>
+                <EmptyHeader>
+                  <EmptyMedia variant='icon'>
+                    <LifeBuoy />
+                  </EmptyMedia>
+                  <EmptyTitle>{t('Support Center')}</EmptyTitle>
+                  <EmptyDescription>
+                    {t('support.notificationDescription')}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <Button
+                  size='sm'
+                  render={<Link to='/support' />}
+                  onClick={() => onOpenChange(false)}
+                >
+                  {t('support.openCenter')}
+                </Button>
+              </Empty>
+            </TabsContent>
+          ) : null}
         </Tabs>
 
         <div className='flex justify-end'>

@@ -24,8 +24,11 @@ import { Footer } from '@/components/layout/components/footer'
 import { useStatus } from '@/hooks/use-status'
 import { useSystemConfig } from '@/hooks/use-system-config'
 
+import { SourceHomeCharacterField } from './source-home-character-field'
+import { SourceHomeEasterEgg } from './source-home-easter-egg'
 import { SourceHomeHero } from './source-home-hero'
 import { SourceHomePolicyAndRequest } from './source-home-policy-and-request'
+import { SourceHomeRequestJourney } from './source-home-request-journey'
 import { SourceHomeTrust } from './source-home-trust'
 
 type SourceHomeProps = {
@@ -57,18 +60,23 @@ export function SourceHome(props: SourceHomeProps) {
   }, [apiBase, t])
 
   return (
-    <>
-      <SourceHomeHero
-        apiBase={apiBase}
-        docsUrl={docsUrl}
-        isAuthenticated={props.isAuthenticated}
-        logo={logo}
-        onCopyApiBase={copyApiBase}
-        systemName={systemName}
-      />
-      <SourceHomeTrust systemName={systemName} />
-      <SourceHomePolicyAndRequest logo={logo} systemName={systemName} />
-      <Footer />
-    </>
+    <div className='bg-background relative isolate overflow-clip'>
+      <SourceHomeCharacterField />
+      <div className='relative z-10'>
+        <SourceHomeHero
+          apiBase={apiBase}
+          docsUrl={docsUrl}
+          isAuthenticated={props.isAuthenticated}
+          logo={logo}
+          onCopyApiBase={copyApiBase}
+          systemName={systemName}
+        />
+        <SourceHomeTrust systemName={systemName} />
+        <SourceHomePolicyAndRequest logo={logo} systemName={systemName} />
+        <SourceHomeRequestJourney logo={logo} systemName={systemName} />
+        <SourceHomeEasterEgg systemName={systemName} />
+        <Footer />
+      </div>
+    </div>
   )
 }
