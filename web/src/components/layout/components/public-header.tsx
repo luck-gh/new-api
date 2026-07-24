@@ -58,6 +58,7 @@ export interface PublicHeaderProps {
   showNavigation?: boolean
   showAuthButtons?: boolean
   showNotifications?: boolean
+  contentScrolled?: boolean
   className?: string
 }
 
@@ -71,6 +72,7 @@ export function PublicHeader(props: PublicHeaderProps) {
     homeUrl = '/',
     showAuthButtons = true,
     showNotifications = true,
+    contentScrolled = false,
   } = props
 
   const { t } = useTranslation()
@@ -92,6 +94,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   const notifications = useNotifications()
   const routerState = useRouterState()
   const pathname = routerState.location.pathname
+  const isScrolled = scrolled || contentScrolled
 
   const user = auth.user
   const isAuthenticated = !!user
@@ -142,6 +145,37 @@ export function PublicHeader(props: PublicHeaderProps) {
     navigate({ to: '/sign-in', search: { redirect } })
   }, [authPromptTarget?.href, navigate])
 
+  let logoContent: React.ReactNode = customLogo
+  if (loading) {
+    logoContent = <Skeleton className='size-full rounded-lg' />
+  } else if (!customLogo) {
+    logoContent = (
+      <HeaderLogo
+        src={systemLogo}
+        loading={loading}
+        logoLoaded={logoLoaded}
+        className='size-full rounded-lg object-contain'
+      />
+    )
+  }
+
+  let desktopAuthControl: React.ReactNode
+  if (loading) {
+    desktopAuthControl = <Skeleton className='h-8 w-20 rounded-lg' />
+  } else if (isAuthenticated) {
+    desktopAuthControl = <ProfileDropdown />
+  } else {
+    desktopAuthControl = (
+      <Button
+        size='sm'
+        className='h-8 rounded-lg px-3.5 text-xs font-medium'
+        render={<Link to='/sign-in' />}
+      >
+        {t('Sign in')}
+      </Button>
+    )
+  }
+
   const handleNavLinkClick = useCallback(
     (
       event: React.MouseEvent<HTMLAnchorElement>,
@@ -179,13 +213,15 @@ export function PublicHeader(props: PublicHeaderProps) {
         <div
           className={cn(
             'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            scrolled ? 'max-w-[52rem] px-3 pt-3' : 'max-w-7xl px-4 pt-0 md:px-6'
+            isScrolled
+              ? 'max-w-[52rem] px-3 pt-3'
+              : 'max-w-7xl px-4 pt-0 md:px-6'
           )}
         >
           <nav
             className={cn(
               'flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              scrolled
+              isScrolled
                 ? 'bg-background/60 ring-border/50 h-12 rounded-2xl pr-1.5 pl-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'
                 : 'h-16 px-2'
             )}
@@ -196,18 +232,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               className='group flex shrink-0 items-center gap-2.5'
             >
               <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
-                {loading ? (
-                  <Skeleton className='size-full rounded-lg' />
-                ) : customLogo ? (
-                  customLogo
-                ) : (
-                  <HeaderLogo
-                    src={systemLogo}
-                    loading={loading}
-                    logoLoaded={logoLoaded}
-                    className='size-full rounded-lg object-contain'
-                  />
-                )}
+                {logoContent}
               </div>
               <span className='text-sm font-semibold tracking-tight'>
                 {loading ? <Skeleton className='h-4 w-16' /> : displaySiteName}
@@ -216,12 +241,12 @@ export function PublicHeader(props: PublicHeaderProps) {
 
             {/* Desktop nav */}
             <div className='hidden items-center gap-0.5 sm:flex'>
-              {links.map((link, i) => {
+              {links.map((link) => {
                 const isActive = pathname === link.href
                 if (link.external) {
                   return (
                     <a
-                      key={i}
+                      key={link.href}
                       href={link.href}
                       target='_blank'
                       rel='noopener noreferrer'
@@ -239,7 +264,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                 }
                 return (
                   <Link
-                    key={i}
+                    key={link.href}
                     to={link.href}
                     disabled={link.disabled}
                     onClick={(event) => handleNavLinkClick(event, link)}
@@ -280,19 +305,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               {showAuthButtons && (
                 <>
                   <div className='bg-border/40 mx-1 h-4 w-px' />
-                  {loading ? (
-                    <Skeleton className='h-8 w-20 rounded-lg' />
-                  ) : isAuthenticated ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Button
-                      size='sm'
-                      className='h-8 rounded-lg px-3.5 text-xs font-medium'
-                      render={<Link to='/sign-in' />}
-                    >
-                      {t('Sign in')}
-                    </Button>
-                  )}
+                  {desktopAuthControl}
                 </>
               )}
             </div>
@@ -364,7 +377,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               if (link.external) {
                 return (
                   <a
-                    key={i}
+                    key={link.href}
                     href={link.href}
                     target='_blank'
                     rel='noopener noreferrer'
@@ -380,7 +393,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               }
               return (
                 <Link
-                  key={i}
+                  key={link.href}
                   to={link.href}
                   disabled={link.disabled}
                   onClick={(event) => handleNavLinkClick(event, link, true)}

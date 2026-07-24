@@ -30,7 +30,6 @@ import { useSystemConfig } from '@/hooks/use-system-config'
 import { ApiReference } from './api-reference'
 import { DocsHome } from './docs-home'
 import { DesktopDocsNavigation, MobileDocsNavigation } from './docs-navigation'
-import { DocsTokenInjection } from './docs-token-injection'
 import { GuidePage } from './guide-page'
 import { useDocsData } from './use-docs-data'
 
@@ -102,10 +101,7 @@ export function Docs() {
 
         <div className='grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]'>
           <DesktopDocsNavigation guides={guides} pathname={pathname} />
-          <div className='min-w-0'>
-            {pathname !== '/docs' ? <DocsTokenInjection /> : null}
-            {content}
-          </div>
+          <div className='min-w-0'>{content}</div>
         </div>
       </div>
       <Footer className='mt-8' />

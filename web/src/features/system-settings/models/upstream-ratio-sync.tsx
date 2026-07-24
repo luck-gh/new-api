@@ -49,6 +49,7 @@ import {
   OPENROUTER_CHANNEL_TYPE,
   OPENROUTER_ENDPOINT,
 } from './constants'
+import { refreshSystemOptionsAfterRatioSync } from './refresh-system-options-after-sync'
 import {
   NUMERIC_SYNC_FIELDS,
   RATIO_SYNC_FIELDS,
@@ -198,9 +199,10 @@ export function UpstreamRatioSync({ modelRatios }: UpstreamRatioSyncProps) {
         await updateSystemOption(update)
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await refreshSystemOptionsAfterRatioSync(queryClient)
+
       toast.success(t('Prices synced successfully'))
-      queryClient.invalidateQueries({ queryKey: ['system-options'] })
 
       setDifferences((prevDiffs) => {
         const newDiffs = { ...prevDiffs }

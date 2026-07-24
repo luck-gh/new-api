@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 /* oxlint-disable react/no-danger -- bundled documentation HTML is sanitized with DOMPurify before rendering. */
 import { Link, useNavigate } from '@tanstack/react-router'
 import DOMPurify from 'dompurify'
-import { ArrowLeft, ArrowRight, Copy, FileText, Info } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Copy, FileText } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth-store'
 
 import { guideSummary, guideTitle } from './docs-copy'
+import { DocsTokenInjection } from './docs-token-injection'
 import {
   getDocsTokenForUser,
   injectDocsToken,
@@ -126,12 +127,7 @@ export function GuidePage(props: {
         </p>
       </header>
 
-      <div className='border-primary/20 bg-primary/5 mt-7 flex gap-3 rounded-xl border p-4'>
-        <Info className='text-primary mt-0.5 size-4 shrink-0' />
-        <p className='text-muted-foreground text-sm leading-6'>
-          {t('docs.guide.securityNote')}
-        </p>
-      </div>
+      <DocsTokenInjection />
 
       {isChinese ? (
         <section

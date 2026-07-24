@@ -16,10 +16,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { createFileRoute } from '@tanstack/react-router'
+type SystemOptionsQueryInvalidator = {
+  invalidateQueries: (filters: { queryKey: string[] }) => Promise<unknown>
+}
 
-import { Docs } from '@/features/docs'
-
-export const Route = createFileRoute('/docs/')({
-  component: Docs,
-})
+export async function refreshSystemOptionsAfterRatioSync(
+  queryClient: SystemOptionsQueryInvalidator
+) {
+  await queryClient.invalidateQueries({ queryKey: ['system-options'] })
+}

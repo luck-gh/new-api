@@ -179,7 +179,7 @@ export function SourceHomeEasterEgg(props: { systemName: string }) {
       <canvas
         ref={canvasRef}
         aria-label={props.systemName}
-        className='mt-4 block h-[clamp(12rem,24vw,23rem)] w-full cursor-crosshair'
+        className='mt-4 block h-[clamp(12rem,24vw,23rem)] w-full cursor-default'
       />
     </section>
   )

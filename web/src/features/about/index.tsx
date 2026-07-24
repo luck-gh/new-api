@@ -18,11 +18,14 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useQuery } from '@tanstack/react-query'
 import { Construction } from 'lucide-react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PublicLayout } from '@/components/layout'
 import { RichContent } from '@/components/rich-content'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useTheme } from '@/context/theme-provider'
+import { useEmbeddedContentScroll } from '@/hooks/use-embedded-content-scroll'
 import { isHttpUrl, isLikelyHtml } from '@/lib/content-format'
 
 import { getAboutContent } from './api'
@@ -113,7 +116,9 @@ function EmptyAboutState() {
 }
 
 export function About() {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const { resolvedTheme } = useTheme()
   const { data, isLoading } = useQuery({
     queryKey: ['about-content'],
     queryFn: getAboutContent,
@@ -123,6 +128,25 @@ export function About() {
   const hasContent = rawContent.length > 0
   const isUrl = hasContent && isHttpUrl(rawContent)
   const contentIsHtml = hasContent && isLikelyHtml(rawContent)
+  const contentScrolled = useEmbeddedContentScroll(iframeRef, isUrl)
+  const syncIframePreferences = useCallback(() => {
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        { themeMode: resolvedTheme },
+        '*'
+      )
+      iframeRef.current?.contentWindow?.postMessage(
+        { lang: i18n.language },
+        '*'
+      )
+    } catch {
+      // Cross-origin frames may reject access while navigating.
+    }
+  }, [i18n.language, resolvedTheme])
+
+  useEffect(() => {
+    if (isUrl) syncIframePreferences()
+  }, [isUrl, syncIframePreferences])
 
   if (isLoading) {
     return (
@@ -147,12 +171,14 @@ export function About() {
 
   if (isUrl) {
     return (
-      <PublicLayout showMainContainer={false}>
+      <PublicLayout showMainContainer={false} headerProps={{ contentScrolled }}>
         <iframe
+          ref={iframeRef}
           src={rawContent}
-          className='h-[calc(100vh-3.5rem)] w-full border-0'
+          className='h-[calc(100dvh-3.5rem)] w-full border-0'
           title={t('About')}
-          sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
+          sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation'
+          onLoad={syncIframePreferences}
         />
       </PublicLayout>
     )

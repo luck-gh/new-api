@@ -2573,6 +2573,8 @@
     "JSON is invalid. Please check the syntax.": "JSON 無效，請檢查語法。",
     "JSON map of group → description exposed when users create API keys.": "分組 → 描述的 JSON 映射，在用戶建立 API 金鑰時公開。",
     "JSON map of group → ratio applied when the user selects the group explicitly.": "分組 → 比率的 JSON 映射，當用戶明確選擇該分組時套用此比率。",
+    "JSON map of model → billing expression. Request rules remain appended after `|||`.": "模型 → 計費表達式的 JSON 對應。請求規則仍附加在 `|||` 之後。",
+    "JSON map of model → billing mode. Use `tiered_expr` to enable expression billing.": "模型 → 計費模式的 JSON 對應。使用 `tiered_expr` 啟用表達式計費。",
     "JSON map of model → multiplier applied to quota billing.": "模型 → 套用於配額收費的乘數的 JSON 映射。",
     "JSON map of model → USD cost per request. Takes precedence over ratio based billing.": "模型 → 每請求美元成本的 JSON 映射。優先於基於比率的收費。",
     "JSON mode": "JSON 模式",

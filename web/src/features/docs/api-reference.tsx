@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 
 import { endpointTitle } from './docs-copy'
+import { DocsTokenInjection } from './docs-token-injection'
 import {
   getDocsTokenForUser,
   injectDocsToken,
@@ -159,6 +160,8 @@ export function ApiReference(props: {
           {t('docs.api.description')}
         </p>
       </header>
+
+      <DocsTokenInjection />
 
       <div className='mb-5 md:hidden'>
         <label className='text-muted-foreground mb-2 block text-xs font-medium'>
