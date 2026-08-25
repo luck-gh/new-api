@@ -151,6 +151,11 @@ export function useSidebarData(): SidebarData {
             icon: CreditCard,
           },
           {
+            title: t('Ticket Management'),
+            url: '/support-management',
+            icon: LifeBuoy,
+          },
+          {
             title: t('System Info'),
             url: '/system-info',
             icon: ServerCog,
