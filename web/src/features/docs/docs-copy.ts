@@ -37,10 +37,6 @@ const GUIDE_COPY = {
     title: 'docs.guides.imageGen.title',
     summary: 'docs.guides.imageGen.summary',
   },
-  'cc-switch': {
-    title: 'docs.guides.ccSwitch.title',
-    summary: 'docs.guides.ccSwitch.summary',
-  },
   'claude-code': {
     title: 'docs.guides.claudeCode.title',
     summary: 'docs.guides.claudeCode.summary',
