@@ -112,6 +112,11 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.POST("/waffo-pancake/pay", middleware.CriticalRateLimit(), controller.RequestWaffoPancakePay)
 				selfRoute.POST("/aff_transfer", middleware.UserCriticalRateLimit("aff-transfer"), controller.TransferAffQuota)
 				selfRoute.PUT("/setting", controller.UpdateUserSetting)
+				selfRoute.POST("/support/tickets", middleware.CriticalRateLimit(), controller.CreateSupportTicket)
+				selfRoute.GET("/support/tickets", controller.ListMySupportTickets)
+				selfRoute.GET("/support/tickets/:id", controller.GetMySupportTicket)
+				selfRoute.POST("/support/tickets/:id/messages", middleware.CriticalRateLimit(), controller.ReplyMySupportTicket)
+				selfRoute.PUT("/support/tickets/:id/state", controller.ChangeMySupportTicketState)
 
 				// 2FA routes
 				selfRoute.GET("/2fa/status", controller.Get2FAStatus)
@@ -150,6 +155,14 @@ func SetApiRouter(router *gin.Engine) {
 				adminRoute.GET("/2fa/stats", controller.Admin2FAStats)
 				adminRoute.DELETE("/:id/2fa", controller.AdminDisable2FA)
 			}
+		}
+		supportAdminRoute := apiRouter.Group("/support/admin")
+		supportAdminRoute.Use(middleware.AdminAuth())
+		{
+			supportAdminRoute.GET("/tickets", controller.ListAdminSupportTickets)
+			supportAdminRoute.GET("/tickets/:id", controller.GetAdminSupportTicket)
+			supportAdminRoute.POST("/tickets/:id/messages", middleware.CriticalRateLimit(), controller.ReplyAdminSupportTicket)
+			supportAdminRoute.PUT("/tickets/:id/state", controller.ChangeAdminSupportTicketState)
 		}
 
 		// Subscription billing (plans, purchase, admin management)
